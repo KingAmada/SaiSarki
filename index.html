@@ -619,7 +619,11 @@
             min-width: 0;
         }
         h1, h2, h3, h4, h5, h6, p, a, button, span, li {
-            overflow-wrap: anywhere;
+            overflow-wrap: break-word;
+            word-break: normal;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            text-wrap: balance;
         }
         main section {
             scroll-margin-top: 5.5rem;
@@ -738,6 +742,7 @@
                 transform: rotate(-1deg);
             }
             .spin-shell {
+                grid-template-columns: 1fr;
                 gap: 1rem;
             }
             .spin-panel {
@@ -771,6 +776,9 @@
             }
         }
         @media (max-width: 640px) {
+            main {
+                padding-bottom: 4.75rem;
+            }
             .sticky-nav nav {
                 padding-top: 0.65rem;
                 padding-bottom: 0.65rem;
@@ -794,13 +802,25 @@
                 overflow-y: auto;
             }
             .hero-bg {
-                min-height: clamp(25rem, 58svh, 32rem);
+                min-height: clamp(27rem, 62svh, 34rem);
+                align-items: center;
             }
             .hero-bg.hero-clean-active {
-                min-height: clamp(14rem, 56vw, 21rem);
+                min-height: clamp(20rem, 72vw, 25rem);
+            }
+            .hero-bg.hero-clean-active .hero-bg-slide.active,
+            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="NO-EFCC.png"],
+            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="no-harassment-youths-redesign.png"] {
+                background-size: cover;
+                background-position: center;
+            }
+            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="Hero Image.png"],
+            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="Hero Picture subs.png"],
+            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="King of Subsidy.png"] {
+                background-position: center top;
             }
             .hero-bg .container {
-                padding-top: 2.5rem !important;
+                padding-top: 2rem !important;
                 padding-bottom: 2rem !important;
             }
             .hero-bg.hero-clean-active .container {
@@ -808,7 +828,8 @@
                 padding-bottom: 0 !important;
             }
             .hero-content h2 {
-                font-size: clamp(1.75rem, 10vw, 2.55rem);
+                font-size: clamp(1.8rem, 9.2vw, 2.65rem);
+                line-height: 1.04;
             }
             .hero-content p {
                 font-size: 0.92rem;
@@ -823,6 +844,22 @@
             #stats .grid > div {
                 padding: 0.85rem !important;
             }
+            #stats {
+                padding-top: 2.5rem !important;
+                padding-bottom: 2.75rem !important;
+            }
+            #stats h3 {
+                font-size: clamp(2rem, 10vw, 2.65rem);
+                line-height: 1.08;
+                max-width: 18rem;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            #stats p {
+                font-size: 1rem;
+                line-height: 1.45;
+                max-width: 20rem;
+            }
             #stats h4 {
                 font-size: clamp(1.85rem, 9vw, 2.6rem);
             }
@@ -836,35 +873,50 @@
             .spin-button {
                 width: 100%;
             }
+            .spin-shell {
+                grid-template-columns: 1fr;
+            }
+            #spinwheel h3 {
+                font-size: clamp(2rem, 11vw, 2.8rem);
+                line-height: 1.05;
+                max-width: 19rem;
+            }
             .wheel-stage {
-                width: min(100%, 18rem, calc(100svw - 2rem));
+                width: min(100%, 17.5rem, calc(100svw - 2rem));
             }
             .spin-splash {
                 min-width: 11rem;
                 padding: 0.8rem;
             }
             .social-proof-toast {
-                left: 0.65rem;
-                right: 4.7rem;
-                bottom: 0.65rem;
+                left: 0.6rem;
+                right: 4.35rem;
+                bottom: calc(0.65rem + env(safe-area-inset-bottom));
             }
             .social-proof-card {
                 grid-template-columns: 2.2rem minmax(0, 1fr);
-                padding: 0.7rem;
+                padding: 0.62rem 0.68rem;
                 gap: 0.6rem;
             }
             .social-proof-icon {
                 width: 2.15rem;
             }
             .social-proof-text {
-                font-size: 0.8rem;
+                font-size: 0.76rem;
                 line-height: 1.25;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .social-proof-time {
+                font-size: 0.66rem;
             }
             .floating-whatsapp-share {
                 right: 0.65rem;
-                bottom: 0.65rem;
-                width: 3.55rem;
-                height: 3.55rem;
+                bottom: calc(0.65rem + env(safe-area-inset-bottom));
+                width: 3.35rem;
+                height: 3.35rem;
                 justify-content: center;
                 padding: 0;
             }
@@ -892,6 +944,44 @@
             .promise-share-button {
                 width: 100%;
             }
+            #networking {
+                padding-top: 3rem !important;
+            }
+            #networking .section-icon {
+                margin-bottom: 0.75rem;
+            }
+            #networking h2 {
+                font-size: clamp(2rem, 10vw, 2.8rem);
+                line-height: 1.08;
+                max-width: 20rem;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            #networking-tabs {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.45rem;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 2rem;
+            }
+            #networking-tabs .networking-tab {
+                margin: 0 !important;
+                border-radius: 8px;
+                padding: 0.68rem 0.45rem;
+                font-size: 0.92rem;
+                line-height: 1.15;
+                white-space: normal;
+            }
+            #networking .show-networking-form-btn {
+                width: 100%;
+                max-width: 20rem;
+                border-radius: 9999px;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                font-size: 1rem;
+                line-height: 1.25;
+            }
         }
         @media (max-width: 380px) {
             .sticky-nav p {
@@ -901,13 +991,20 @@
                 min-height: 26rem;
             }
             .hero-bg.hero-clean-active {
-                min-height: 13.5rem;
+                min-height: 20rem;
             }
             .hero-subsidy-card {
                 width: min(12rem, 68vw);
             }
             .wheel-stage {
                 width: min(100%, 16.25rem);
+            }
+            #stats h3,
+            #networking h2 {
+                font-size: 2rem;
+            }
+            .social-proof-text {
+                font-size: 0.72rem;
             }
         }
 @media print {
@@ -2675,7 +2772,7 @@ programs.push({
                     goal: 2000000,
                     votes: 289,
                     comments: 42,
-                    imageUrl: "assets/entrepreneurs/agri-tech-hub.png"
+                    imageUrl: "assets/entrepreneurs/agri-tech-hub Large.jpeg"
                 },
                 {
                     title: "Abuja Municipal/Bwari Waste-to-Wealth Initiative",
@@ -2686,7 +2783,7 @@ programs.push({
                     goal: 5000000,
                     votes: 512,
                     comments: 88,
-                    imageUrl: "assets/entrepreneurs/waste-to-wealth.png"
+                    imageUrl: "assets/entrepreneurs/waste-to-wealth Large.jpeg"
                 },
                 {
                     title: "Kwali Pottery Digital Marketplace",
@@ -2697,7 +2794,7 @@ programs.push({
                     goal: 1500000,
                     votes: 450,
                     comments: 65,
-                    imageUrl: "assets/entrepreneurs/kwali-pottery-market.png"
+                    imageUrl: "assets/entrepreneurs/kwali-pottery-market Large.jpeg"
                 },
                 {
                     title: "Abuja Municipal/Bwari Last-Mile Delivery Service",
@@ -2708,7 +2805,7 @@ programs.push({
                     goal: 3000000,
                     votes: 355,
                     comments: 58,
-                    imageUrl: "assets/entrepreneurs/last-mile-delivery.png"
+                    imageUrl: "assets/entrepreneurs/last-mile-delivery Large.jpeg"
                 },
                 {
                     title: "Local Shea Butter Processing Unit",
@@ -2719,7 +2816,7 @@ programs.push({
                     goal: 1800000,
                     votes: 240,
                     comments: 31,
-                    imageUrl: "assets/entrepreneurs/shea-processing.png"
+                    imageUrl: "assets/entrepreneurs/shea-processing Large.jpeg"
                 },
                 {
                     title: "Mobile Mechanic & Car Care",
@@ -2730,7 +2827,7 @@ programs.push({
                     goal: 2500000,
                     votes: 198,
                     comments: 45,
-                    imageUrl: "assets/entrepreneurs/mobile-mechanic.png"
+                    imageUrl: "assets/entrepreneurs/mobile-mechanic Large.jpeg"
                 },
                 {
                     title: "Healthy School Lunch Program",
@@ -2741,7 +2838,7 @@ programs.push({
                     goal: 2000000,
                     votes: 410,
                     comments: 76,
-                    imageUrl: "assets/entrepreneurs/school-lunch.png"
+                    imageUrl: "assets/entrepreneurs/school-lunch Large.jpeg"
                 },
                 {
                     title: "Solar-Powered Phone Charging Kiosks",
@@ -2752,7 +2849,7 @@ programs.push({
                     goal: 4000000,
                     votes: 620,
                     comments: 102,
-                    imageUrl: "assets/entrepreneurs/solar-charging-kiosks.png"
+                    imageUrl: "assets/entrepreneurs/solar-charging-kiosks Large.jpeg"
                 },
                 {
                     title: "Abuja Events & Venue Directory",
@@ -2763,7 +2860,7 @@ programs.push({
                     goal: 1000000,
                     votes: 180,
                     comments: 29,
-                    imageUrl: "assets/entrepreneurs/events-directory.png"
+                    imageUrl: "assets/entrepreneurs/events-directory Large.jpeg"
                 },
                 {
                     title: "Upcycled Fashion & Accessories",
@@ -2774,7 +2871,7 @@ programs.push({
                     goal: 900000,
                     votes: 150,
                     comments: 22,
-                    imageUrl: "assets/entrepreneurs/upcycled-fashion.png"
+                    imageUrl: "assets/entrepreneurs/upcycled-fashion Large.jpeg"
                 },
                 {
                     title: "Traditional Snack Production",
@@ -2785,7 +2882,7 @@ programs.push({
                     goal: 1200000,
                     votes: 315,
                     comments: 38,
-                    imageUrl: "assets/entrepreneurs/traditional-snacks.png"
+                    imageUrl: "assets/entrepreneurs/traditional-snacks Large.jpeg"
                 },
                 {
                     title: "Home Tutoring & Skills Service",
@@ -2796,7 +2893,7 @@ programs.push({
                     goal: 1500000,
                     votes: 290,
                     comments: 51,
-                    imageUrl: "assets/entrepreneurs/home-tutoring.png"
+                    imageUrl: "assets/entrepreneurs/home-tutoring Large.jpeg"
                 },
                 {
                     title: "Irrigation for Urban Farming",
@@ -2807,7 +2904,7 @@ programs.push({
                     goal: 800000,
                     votes: 210,
                     comments: 33,
-                    imageUrl: "assets/entrepreneurs/urban-irrigation.png"
+                    imageUrl: "assets/entrepreneurs/urban-irrigation Large.jpeg"
                 }
             ];
 
