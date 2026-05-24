@@ -309,24 +309,39 @@
         }
 
         .spin-section {
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.96), rgba(15, 23, 42, 0.98));
+            background:
+                radial-gradient(circle at 18% 18%, rgba(250, 204, 21, 0.18), transparent 28%),
+                radial-gradient(circle at 85% 20%, rgba(96, 165, 250, 0.2), transparent 30%),
+                linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #0f766e 100%);
             color: #f8fafc;
         }
         .spin-shell {
             display: grid;
-            grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+            grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
             gap: 2rem;
             align-items: center;
         }
         .spin-panel {
             border: 1px solid rgba(255, 255, 255, 0.16);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.56);
             box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
             backdrop-filter: blur(12px);
             border-radius: 8px;
         }
+        .spin-form-box {
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .spin-step {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
         .spin-input {
-            letter-spacing: 0.12em;
+            letter-spacing: 0.05em;
             font-variant-numeric: tabular-nums;
         }
         .spin-input:focus {
@@ -359,7 +374,7 @@
             position: absolute;
             inset: 0;
             border-radius: 9999px;
-            background: conic-gradient(#60a5fa, #2563eb, #1e3a8a, #38bdf8, #60a5fa);
+            background: conic-gradient(#facc15, #60a5fa, #2563eb, #0f766e, #facc15);
             box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
         }
         .wheel-ring::after {
@@ -390,7 +405,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: #60a5fa;
+            background: #facc15;
             clip-path: polygon(50% 100%, 0 0, 100% 0);
         }
         .wheel-center {
@@ -402,7 +417,7 @@
             place-items: center;
             border-radius: 9999px;
             background: #f8fafc;
-            border: 8px solid #0f172a;
+            border: 8px solid #facc15;
             color: #1e3a8a;
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
         }
@@ -1306,40 +1321,57 @@
   <div class="container mx-auto px-4 sm:px-6">
     <div class="spin-shell">
       <div class="spin-panel p-6 md:p-8">
-        <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-blue-200 mb-5">
+        <div class="inline-flex items-center gap-2 rounded-full bg-yellow-300/20 px-3 py-1 text-sm font-semibold text-yellow-100 mb-5">
           <i class="fas fa-bolt"></i>
-          Daily voter reward draw
+          Daily electricity reward
         </div>
         <h3 class="text-3xl md:text-5xl font-extrabold leading-tight mb-4">
-          Spin for Electricity Units
+          Spin for Free Electricity Units
         </h3>
         <p class="text-blue-50/85 mb-6 max-w-xl">
-          Verify with your 19-digit PVC number, then spin once for today. Winners receive electricity recharge support after validation.
+          Enter your PVC, NIN, or phone number to unlock one daily spin. Winning entries are validated before electricity recharge support is released.
         </p>
 
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 text-sm">
+          <div class="spin-step">
+            <p class="text-blue-100">Step 1</p>
+            <p class="font-bold text-white">Verify ID</p>
+          </div>
+          <div class="spin-step">
+            <p class="text-blue-100">Step 2</p>
+            <p class="font-bold text-white">Spin once</p>
+          </div>
+          <div class="spin-step">
+            <p class="text-blue-100">Step 3</p>
+            <p class="font-bold text-white">Validate prize</p>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3 mb-6 text-sm">
-          <div class="rounded-md bg-white/10 p-3">
+          <div class="rounded-md bg-white/10 p-3 border border-white/10">
             <p class="text-blue-100">Daily winners</p>
             <p class="text-2xl font-bold text-white">100</p>
           </div>
-          <div class="rounded-md bg-white/10 p-3">
+          <div class="rounded-md bg-white/10 p-3 border border-white/10">
             <p class="text-blue-100">Top prize</p>
             <p class="text-2xl font-bold text-white">150 units</p>
           </div>
         </div>
 
-        <label for="pvc-input" class="block text-sm font-semibold text-blue-50 mb-2">PVC Number</label>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input id="pvc-input" type="text" inputmode="numeric" maxlength="19"
-                 class="spin-input w-full px-4 py-3 border border-white/20 rounded-md text-center text-slate-900 bg-white"
-                 placeholder="19 digits" autocomplete="off" />
-          <button id="spin-btn"
-                  class="spin-button px-7 py-3 rounded-md font-bold text-white bg-blue-600 hover:bg-blue-500 transition disabled:opacity-50"
-                  disabled>
-            <i class="fas fa-play mr-2"></i>Spin
-          </button>
+        <div class="spin-form-box">
+          <label for="pvc-input" class="block text-sm font-semibold text-blue-50 mb-2">PVC/NIN/Phone Number</label>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input id="pvc-input" type="text" inputmode="numeric" maxlength="19"
+                   class="spin-input w-full px-4 py-3 border border-white/20 rounded-md text-center text-slate-900 bg-white"
+                   placeholder="Enter 11 or 19 digits" autocomplete="off" />
+            <button id="spin-btn"
+                    class="spin-button px-7 py-3 rounded-md font-bold text-slate-950 bg-yellow-300 hover:bg-yellow-200 transition disabled:opacity-50"
+                    disabled>
+              <i class="fas fa-play mr-2"></i>Spin
+            </button>
+          </div>
+          <p id="spin-status" class="mt-3 min-h-[1.5rem] text-sm text-blue-100">Use 11 digits for phone/NIN or 19 digits for PVC.</p>
         </div>
-        <p id="spin-status" class="mt-3 min-h-[1.5rem] text-sm text-blue-100">Enter 19 digits to unlock today’s spin.</p>
 
         <div class="mt-6 flex flex-wrap gap-2 text-xs text-white/90">
           <span class="prize-chip">10 units</span>
@@ -1348,6 +1380,7 @@
           <span class="prize-chip">75 units</span>
           <span class="prize-chip">100 units</span>
           <span class="prize-chip">150 units</span>
+          <span class="prize-chip">So close</span>
         </div>
 
         <div id="spin-result" class="spin-result-card hidden mt-6 rounded-md bg-white p-4 text-slate-800">
@@ -1356,7 +1389,8 @@
         </div>
       </div>
 
-      <div class="spin-panel p-5 md:p-8">
+      <div class="spin-panel p-5 md:p-8 text-center">
+        <p class="mb-4 text-sm font-semibold uppercase tracking-widest text-yellow-100">Prize Wheel</p>
         <div class="wheel-stage">
           <div class="wheel-ring"></div>
           <div class="wheel-pointer" aria-hidden="true"></div>
@@ -1375,7 +1409,7 @@
         </div>
         <div class="mt-6 grid grid-cols-3 gap-2 text-center text-xs text-blue-50/90">
           <div class="rounded-md bg-white/10 p-2">One spin daily</div>
-          <div class="rounded-md bg-white/10 p-2">PVC verified</div>
+          <div class="rounded-md bg-white/10 p-2">PVC/NIN/phone verified</div>
           <div class="rounded-md bg-white/10 p-2">Recharge support</div>
         </div>
       </div>
@@ -1556,7 +1590,7 @@
                     <i class="fas fa-lightbulb section-icon mx-auto block text-center text-orange-500"></i>
                     <h3 class="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-2">Entrepreneurs Hub</h3>
                     <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
-                        As a cornerstone of our "Everyone Must Benefit" promise, we are personally kickstarting the dreams of our supporters. We will fund <strong>50 businesses with ₦1,000,000 each</strong>, <strong>100 businesses with ₦500,000 each</strong>, and <strong>1,000 businesses with ₦100,000 each</strong> from our own pockets. Your vote helps us identify the most impactful ideas. Review the proposals, vote, comment, and consider donating to help fund the future of Abuja Municipal/Bwari's economy.
+                        As a cornerstone of our "Everyone Must Benefit" promise, we are personally kickstarting the dreams of our supporters. We will fund <strong>50 businesses with ₦1,000,000 each</strong>, <strong>100 businesses with ₦500,000 each</strong>, and <strong>1,000 businesses with ₦100,000 each</strong> from our own pockets. Your vote helps us identify the most impactful ideas. Review the proposals, vote, and comment to help shape the future of Abuja Municipal/Bwari's economy.
                     </p>
                     <div id="business-ideas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         </div>
@@ -1863,6 +1897,33 @@
         </div>
     </footer>
    
+    <div id="terms-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4">
+        <div class="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-2xl">
+            <div class="mb-4 flex items-start justify-between gap-4">
+                <h3 class="text-xl font-bold text-blue-900">Terms, Conditions & Privacy Statement</h3>
+                <button type="button" class="text-2xl leading-none text-gray-500 hover:text-gray-800" aria-label="Close terms" onclick="closeTermsModal()">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm leading-6 text-gray-700">
+                <p>By submitting a covenant form, you confirm that the information provided is accurate and that you consent to its use for campaign registration, verification, screening, communication, and covenant letter generation.</p>
+                <p>The covenant letter records your support for Sarki Amada's dreams, ideas, bills, policy goals, and empowerment programs for a better Nigeria. It is not a sale of benefit, vote buying, or an automatic guarantee of approval.</p>
+                <p>Policy-related programs will be pursued through lawful legislative and public-service processes. Non-policy empowerment packages will be reviewed after inauguration based on merit, verification, residency, need, community impact, available resources, and transparent criteria.</p>
+                <p>Supporters who stood with these ideals may receive priority screening and preferential treatment where lawful and appropriate, but final selection remains subject to verification and fair review.</p>
+                <p>Your personal details, including PVC/NIN information, phone number, email, ward, documents, and uploaded photograph, may be retained for verification and communication. We will not knowingly sell your personal information.</p>
+            </div>
+            <button type="button" class="mt-6 w-full rounded-md bg-blue-800 py-3 font-bold text-white cta-button" onclick="closeTermsModal()">I Understand</button>
+        </div>
+    </div>
+
+    <div id="donation-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4">
+        <div class="w-full max-w-md rounded-lg bg-white p-6 text-center shadow-2xl">
+            <button type="button" class="ml-auto block text-2xl leading-none text-gray-500 hover:text-gray-800" aria-label="Close donation message" onclick="closeDonationModal()">&times;</button>
+            <i class="fas fa-hand-holding-heart mb-4 text-4xl text-orange-500"></i>
+            <h3 class="mb-3 text-xl font-bold text-blue-900">Thank You for Your Support</h3>
+            <p class="text-sm leading-6 text-gray-700">We appreciate your kind support for this idea, but we're donating from our own pocket this time. When the time is right, we will share the donation details.</p>
+            <button type="button" class="mt-6 w-full rounded-md bg-blue-800 py-3 font-bold text-white cta-button" onclick="closeDonationModal()">I Understand</button>
+        </div>
+    </div>
+
     <div id="qrcode" style="display: none;"></div>
    
     <template id="form-card-template">
@@ -1902,7 +1963,7 @@
             <div><label class="block text-gray-700 mb-1 text-sm font-medium">Phone Number</label><input type="tel" class="w-full p-2 border rounded-md phone-field" placeholder="e.g., 08012345678" required pattern="[0-9]{11}" title="Please enter an 11-digit phone number" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '')"></div>
             <div class="md:col-span-2"><label class="block text-gray-700 mb-1 text-sm font-medium">Email Address</label><input type="email" class="w-full p-2 border rounded-md email-field" placeholder="e.g., name@example.com"></div>
             <div><label class="block text-gray-700 mb-1 text-sm font-medium">Date of Birth</label><input type="date" class="w-full p-2 border rounded-md dob-field" required></div>
-            <div><label class="block text-gray-700 mb-1 text-sm font-medium">PVC Number</label><input type="text" class="w-full p-2 border rounded-md pvc-field" placeholder="Enter your PVC number" required title="Please enter your Voter's Identification Number"></div>
+            <div><label class="block text-gray-700 mb-1 text-sm font-medium">PVC/NIN Number</label><input type="text" class="w-full p-2 border rounded-md pvc-field" placeholder="Enter your PVC or NIN number" required title="Please enter your PVC or National Identification Number"></div>
             <div class="md:col-span-2"><label class="block text-gray-700 mb-1 text-sm font-medium">Polling Unit Ward</label>
                 <select class="w-full p-2 border rounded-md bg-white ward-field" required>
                      <option value="" disabled selected>-- Select Your Ward --</option>
@@ -2273,9 +2334,9 @@ programs.push({
                 if (['religious', 'pilgrimage'].includes(p.id)) {
                     // Custom form logic
                      if (p.id === 'religious') {
-                         form.innerHTML = `<div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Name of Church / Mosque</label><input type="text" class="w-full p-2 border rounded-md org-name-field" placeholder="Enter organization name" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Number of Members</label><input type="number" class="w-full p-2 border rounded-md members-field" placeholder="e.g., 500" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Address</label><input type="text" class="w-full p-2 border rounded-md address-field" placeholder="Enter physical address" required></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-gray-700 mb-1 text-sm font-medium">Phone Number</label><input type="tel" class="w-full p-2 border rounded-md phone-field" placeholder="Official phone number" required></div><div><label class="block text-gray-700 mb-1 text-sm font-medium">Email</label><input type="email" class="w-full p-2 border rounded-md email-field" placeholder="Official email"></div></div>`;
+                         form.innerHTML = `<div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Name of Church / Mosque</label><input type="text" class="w-full p-2 border rounded-md org-name-field" placeholder="Enter organization name" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Number of Members</label><input type="number" class="w-full p-2 border rounded-md members-field" placeholder="e.g., 500" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Address</label><input type="text" class="w-full p-2 border rounded-md address-field" placeholder="Enter physical address" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">PVC/NIN Number</label><input type="text" class="w-full p-2 border rounded-md pvc-field" placeholder="Enter representative PVC or NIN number" required></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-gray-700 mb-1 text-sm font-medium">Phone Number</label><input type="tel" class="w-full p-2 border rounded-md phone-field" placeholder="Official phone number" required></div><div><label class="block text-gray-700 mb-1 text-sm font-medium">Email</label><input type="email" class="w-full p-2 border rounded-md email-field" placeholder="Official email"></div></div>`;
                     } else if (p.id === 'pilgrimage') {
-                         form.innerHTML = `<div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Full Name of Applicant</label><input type="text" class="w-full p-2 border rounded-md name-field" placeholder="Enter your full name" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Phone Number</label><input type="tel" class="w-full p-2 border rounded-md phone-field" placeholder="Your contact number" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Ward</label><input type="text" class="w-full p-2 border rounded-md ward-field" placeholder="e.g., Garki, Wuse" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Reason for Seeking Sponsorship</label><textarea class="w-full p-2 border rounded-md reason-field" rows="3" placeholder="Briefly explain your situation (optional)"></textarea></div>`;
+                         form.innerHTML = `<div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Full Name of Applicant</label><input type="text" class="w-full p-2 border rounded-md name-field" placeholder="Enter your full name" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Phone Number</label><input type="tel" class="w-full p-2 border rounded-md phone-field" placeholder="Your contact number" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">PVC/NIN Number</label><input type="text" class="w-full p-2 border rounded-md pvc-field" placeholder="Enter your PVC or NIN number" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Ward</label><input type="text" class="w-full p-2 border rounded-md ward-field" placeholder="e.g., Garki, Wuse" required></div><div class="mb-4"><label class="block text-gray-700 mb-1 text-sm font-medium">Reason for Seeking Sponsorship</label><textarea class="w-full p-2 border rounded-md reason-field" rows="3" placeholder="Briefly explain your situation (optional)"></textarea></div>`;
                     }
                 } else {
                     form.innerHTML = formTemplate.innerHTML;
@@ -2290,6 +2351,8 @@ programs.push({
                         form.querySelector('.grid').insertAdjacentHTML('afterbegin', entrepreneurFieldsHTML);
                     }
                 }
+
+                appendConsentCheckbox(form);
 
                  // Unique file input IDs
                 const cvInput = form.querySelector('.cv-field');
@@ -2312,7 +2375,7 @@ programs.push({
                     form.addEventListener('input', () => {
                          let filledCount = 0;
                          requiredInputs.forEach(input => {
-                             if(input.value.trim() !== '') filledCount++;
+                             if(input.type === 'checkbox' ? input.checked : input.value.trim() !== '') filledCount++;
                          });
                          const progress = totalRequired > 0 ? (filledCount / totalRequired) * 100 : 0;
                          progressBar.style.width = `${progress}%`;
@@ -2329,6 +2392,44 @@ programs.push({
             });
         }
        
+        function appendConsentCheckbox(form) {
+            if (!form || form.querySelector('.terms-field')) return;
+            form.insertAdjacentHTML('beforeend', `
+                <label class="md:col-span-2 flex items-start gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-gray-700">
+                    <input type="checkbox" class="terms-field mt-1 h-4 w-4 rounded border-gray-300 text-blue-700" required>
+                    <span>I agree to the <a href="#" class="font-semibold text-blue-800 underline" onclick="event.preventDefault(); openTermsModal();">terms and conditions and privacy statement</a> before submitting my details and generating this covenant letter.</span>
+                </label>
+            `);
+        }
+
+        function openTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function openDonationModal() {
+            const modal = document.getElementById('donation-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDonationModal() {
+            const modal = document.getElementById('donation-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         function validateForm(form) {
             let isValid = true;
             const requiredFields = form.querySelectorAll('[required]');
@@ -2338,7 +2439,9 @@ programs.push({
             requiredFields.forEach(field => {
                  let fieldValid = true;
 
-                if (!field.value.trim()) {
+                if (field.type === 'checkbox' && !field.checked) {
+                    fieldValid = false;
+                } else if (!field.value.trim()) {
                     fieldValid = false;
                 }
                 if(field.type === 'email' && !/^\S+@\S+\.\S+$/.test(field.value)){
@@ -2994,11 +3097,32 @@ programs.push({
             };
 
             container.innerHTML = ''; // Clear existing content
+            const voteStorageKey = 'sarkiEntrepreneurIdeaVotes';
+            const slugifyIdea = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            const getVotedIdeas = () => {
+                try {
+                    return JSON.parse(localStorage.getItem(voteStorageKey)) || {};
+                } catch (error) {
+                    return {};
+                }
+            };
+            const saveVotedIdea = (ideaId) => {
+                const votedIdeas = getVotedIdeas();
+                votedIdeas[ideaId] = true;
+                try {
+                    localStorage.setItem(voteStorageKey, JSON.stringify(votedIdeas));
+                } catch (error) {
+                    console.warn('Vote preference could not be saved:', error);
+                }
+            };
 
             ideas.forEach(idea => {
+                const ideaId = slugifyIdea(idea.title);
+                const hasVoted = Boolean(getVotedIdeas()[ideaId]);
                 const percentage = (idea.pledged / idea.goal) * 100;
                 const card = document.createElement('div');
                 card.className = "business-idea-card bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 overflow-hidden";
+                card.dataset.ideaId = ideaId;
 
                 card.innerHTML = `
                     <img src="${idea.imageUrl}" alt="${idea.title}" class="w-full h-40 object-cover" loading="lazy">
@@ -3022,9 +3146,10 @@ programs.push({
 
                         <div class="flex items-center justify-between border-t border-gray-200 pt-4 mt-auto">
                             <div class="flex items-center space-x-4">
-                                <button class="vote-btn text-gray-600 hover:text-blue-700 transition-colors flex items-center space-x-1" title="Vote for this idea">
+                                <button class="vote-btn ${hasVoted ? 'text-blue-700 cursor-not-allowed' : 'text-gray-600 hover:text-blue-700'} transition-colors flex items-center space-x-1" title="${hasVoted ? 'You have already voted for this idea' : 'Vote for this idea'}" ${hasVoted ? 'disabled' : ''}>
                                     <i class="fas fa-arrow-up"></i>
                                     <span class="font-bold text-sm vote-count">${idea.votes}</span>
+                                    <span class="vote-status sr-only">${hasVoted ? 'Voted' : ''}</span>
                                 </button>
                                 <button class="comment-btn text-gray-600 hover:text-blue-600 transition-colors flex items-center space-x-1" title="View or add comments">
                                     <i class="far fa-comment-dots"></i>
@@ -3047,12 +3172,13 @@ programs.push({
                                     <p class="text-gray-600">How can we ensure the funds are used properly?</p>
                                 </div>
                             </div>
+                            <input type="text" class="comment-name-field w-full p-2 border rounded-md text-sm mb-2" placeholder="Your name" required>
                             <textarea class="w-full p-2 border rounded-md text-sm" placeholder="Add your constructive comment..."></textarea>
                             <button class="post-comment-btn w-full mt-2 bg-gray-700 text-white font-bold py-1 rounded-md text-sm hover:bg-gray-800">Post Comment</button>
                         </div>
                     </div>
                     <div class="bg-gray-800 text-white text-xs text-center font-semibold p-2 mt-auto">
-                        <i class="fas fa-lock mr-2"></i> Funds held in escrow until victory 2027
+                        <i class="fas fa-lock mr-2"></i> Funding support will come from our own pocket when the time is right
                     </div>
                 `;
                 const cardImage = card.querySelector('img');
@@ -3073,10 +3199,21 @@ programs.push({
                 const donateBtn = e.target.closest('.donate-btn');
 
                 if (voteBtn) {
+                    const card = voteBtn.closest('.business-idea-card');
+                    const ideaId = card?.dataset.ideaId;
+                    if (!ideaId || getVotedIdeas()[ideaId]) {
+                        return;
+                    }
                     const countEl = voteBtn.querySelector('.vote-count');
                     let currentCount = parseInt(countEl.textContent);
                     countEl.textContent = currentCount + 1;
-                    voteBtn.classList.add('text-blue-700'); // Show feedback that it's voted
+                    saveVotedIdea(ideaId);
+                    voteBtn.classList.remove('text-gray-600', 'hover:text-blue-700');
+                    voteBtn.classList.add('text-blue-700', 'cursor-not-allowed');
+                    voteBtn.disabled = true;
+                    voteBtn.title = 'You have already voted for this idea';
+                    const voteStatus = voteBtn.querySelector('.vote-status');
+                    if (voteStatus) voteStatus.textContent = 'Voted';
                 }
 
                 if (commentBtn) {
@@ -3087,16 +3224,25 @@ programs.push({
 
                 if (postCommentBtn) {
                     const card = postCommentBtn.closest('.business-idea-card');
+                    const nameInput = card.querySelector('.comment-name-field');
                     const textarea = card.querySelector('textarea');
-                    if (textarea.value.trim() !== "") {
+                    const commenterName = nameInput.value.trim();
+                    const commentText = textarea.value.trim();
+                    nameInput.classList.toggle('form-error', !commenterName);
+                    textarea.classList.toggle('form-error', !commentText);
+                    if (commenterName && commentText) {
                         const commentList = card.querySelector('.comment-list');
                         const newComment = document.createElement('div');
                         newComment.className = 'text-xs p-2 bg-gray-100 rounded-md border animate-pulse';
                         newComment.innerHTML = `
-                            <p class="font-bold text-gray-700">You:</p>
-                            <p class="text-gray-600">${textarea.value}</p>`;
+                            <p class="font-bold text-gray-700"></p>
+                            <p class="text-gray-600"></p>`;
+                        newComment.querySelector('p:first-child').textContent = `${commenterName}:`;
+                        newComment.querySelector('p:last-child').textContent = commentText;
                         commentList.appendChild(newComment);
                         textarea.value = '';
+                        nameInput.classList.remove('form-error');
+                        textarea.classList.remove('form-error');
 
                         // Update comment count
                          const countEl = card.querySelector('.comment-count');
@@ -3108,8 +3254,7 @@ programs.push({
                 }
                
                 if (donateBtn) {
-                    // Placeholder for donation functionality
-                    alert("Thank you for your interest! The secure donation portal will be active soon. Your support is invaluable.");
+                    openDonationModal();
                 }
             });
         }
@@ -3271,6 +3416,135 @@ programs.push({
         }
 
        
+function getCovenantPolicyCopy(type, data, fallbackSubject) {
+    const supporterName = data.name || data.orgName || 'Valued Supporter';
+    const wardText = data.ward ? ` in ${data.ward}` : '';
+    const programCopy = {
+        gladiator: {
+            subject: "Support Letter: Grassroots Leadership and Policy Partnership",
+            program: "Grassroots Leadership and Ward Champion Program",
+            policy: "a Community Representation and Local Talent Recognition Bill",
+            note: "This is a promise to make citizen nomination, ward consultation, and transparent talent discovery part of public policy."
+        },
+        security: {
+            subject: "Support Letter: Community Security Policy",
+            program: "Community Security and Youth Vigilante Corps",
+            policy: "a Community Safety, Youth Vigilance, and Professional Local Security Bill",
+            note: "This is a promise to pursue lawful community security reform with training, human-rights compliance, background checks, and public oversight."
+        },
+        job: {
+            subject: `Support Letter: Job Creation Policy for ${data.ward || 'Your Ward'}`,
+            program: "Ward Job Creation Program",
+            policy: "a Ward Job Creation and Skills Placement Bill",
+            note: "This is a promise to sponsor a policy pathway for fair job access, published shortlists, and merit-based selection."
+        },
+        'fuel-subsidy': {
+            subject: "Support Letter: Targeted Fuel Relief Policy",
+            program: "Targeted Fuel Subsidy Card Program",
+            policy: "a Targeted Subsidy Bill that directs fuel relief to ordinary citizens and small businesses",
+            note: "This is a promise to fight for a transparent subsidy card system instead of blanket relief that benefits only the wealthy."
+        },
+        'hospital-subsidy': {
+            subject: "Support Letter: Hospital Bill Subsidy Policy",
+            program: "Hospital Bill Subsidy Scheme",
+            policy: "a Health Relief and Hospital Bill Subsidy Bill",
+            note: "This is a promise to push healthcare support into policy so families are not abandoned when illness comes."
+        },
+        'transport-subsidy': {
+            subject: "Support Letter: Transport Relief Policy",
+            program: "Transport Subsidy Program",
+            policy: "a Transport Equity and Commuter Relief Bill",
+            note: "This is a promise to make daily movement easier for workers, students, traders, and vulnerable residents through a transparent transport support framework."
+        },
+        'primary-scholarship': {
+            subject: "Support Letter: Basic Education Scholarship Policy",
+            program: "Primary School Scholarship Fund",
+            policy: "an Education Access and Scholarship Support Bill",
+            note: `This is a promise to pursue education support for children like ${data.childName || 'your child'} through fair verification and merit-sensitive selection.`
+        },
+        'secondary-scholarship': {
+            subject: "Support Letter: Secondary Education Scholarship Policy",
+            program: "Secondary School Scholarship Fund",
+            policy: "an Education Access and Scholarship Support Bill",
+            note: `This is a promise to pursue education support for students like ${data.childName || 'your child'} through fair verification and merit-sensitive selection.`
+        },
+        'university-scholarship': {
+            subject: "Support Letter: University Scholarship Policy",
+            program: "University Scholarship Fund",
+            policy: "a Higher Education Scholarship and Youth Advancement Bill",
+            note: `This is a promise to pursue higher-education support for students like ${data.childName || 'your child'} through fair verification and merit-sensitive selection.`
+        },
+        'digital-hustler': {
+            subject: "Support Letter: Digital Youth Protection Policy",
+            program: "Digital Hustler ID and Professional Protection Program",
+            policy: "a Digital Youth and Professional Policing Bill",
+            note: "This is a promise to protect legitimate digital earners from harassment, profiling, and intimidation while promoting lawful digital work."
+        },
+        'wedding-rebate': {
+            subject: "Support Letter: Wedding Rebate Priority Screening",
+            program: "Wedding Rebate Program",
+            policy: "",
+            note: "This empowerment package is not a policy bill. Once we are inaugurated, we will begin implementation based on merit, verification, residency, and available resources. Because you supported our ideals and helped bring this change, your application will receive priority screening and preferential treatment."
+        },
+        entrepreneur: {
+            subject: "Support Letter: Entrepreneurs' Dream Hub Priority Screening",
+            program: "Entrepreneurs' Dream Hub",
+            policy: "",
+            note: `Your idea, "${data.businessTitle || 'your business idea'}", has been recorded for the Entrepreneurs' Dream Hub. This empowerment package is not a policy bill. Once we are inaugurated, we will begin implementation based on merit, viability, job-creation potential, verification, and available resources. Because you believed in us and supported the ideals that brought this change, your file will receive priority screening and preferential treatment.`
+        },
+        'food-bank': {
+            subject: "Support Letter: Community Food Support Priority Screening",
+            program: "Community Food Bank",
+            policy: "",
+            note: "This is a direct relief and empowerment package. Once we are inaugurated, implementation will begin based on need, verification, community impact, and available resources. Supporters of our ideals will receive priority screening while final selection remains merit-based and transparent."
+        },
+        'rent-subsidy': {
+            subject: "Support Letter: Rent Subsidy Priority Screening",
+            program: "Rent Subsidy Program",
+            policy: "",
+            note: "This is a direct relief and empowerment package. Once we are inaugurated, we will begin implementation based on verified need, residency, merit, and available resources. Because you stood with the movement for a better Nigeria, your application will receive priority screening and preferential treatment."
+        },
+        religious: {
+            subject: "Support Letter: Faith Community Partnership",
+            program: "Faith Community Network",
+            policy: "a Faith and Community Development Partnership framework",
+            note: "This letter records your institution's support for community service, peaceful civic education, and better Nigeria ideals. Partnership support and grants will be screened transparently after inauguration based on impact, accountability, and merit."
+        },
+        pilgrimage: {
+            subject: "Support Letter: Pilgrimage Support Priority Screening",
+            program: "Pilgrimage Sponsorship Program",
+            policy: "",
+            note: "This is a direct support package, not a policy bill. Once we are inaugurated, implementation will begin based on devotion, community service, verified need, merit, and available resources. Because you supported our ideals, your application will receive priority screening and preferential treatment."
+        }
+    };
+
+    const details = programCopy[type] || {
+        subject: fallbackSubject || "Support Letter: Sarki Amada Covenant",
+        program: "Sarki Amada Covenant Program",
+        policy: "people-first bills and reforms",
+        note: "This letter records your support for our ideals and our promise to pursue them through responsible public service."
+    };
+
+    const policyLine = details.policy
+        ? `Through this letter, I promise to sponsor and fight for ${details.policy} under the Sarki Amada Bills, so the dreams and ideas we share for a better Nigeria can move from campaign promise into practical public policy.`
+        : `Through this letter, I promise that ${details.program} will be treated as a serious empowerment commitment after inauguration, subject to verification, merit, lawful process, and available resources.`;
+
+    return {
+        subject: details.subject,
+        body: `Dear ${supporterName},
+
+Thank you for standing with the dreams and ideas of a better Nigeria through the Sarki Amada movement. Your submission${wardText} is recorded as a letter of support for the ideals I will carry into office: targeted relief, digital-youth protection, security, jobs, education, health, entrepreneurship, and dignity for ordinary people.
+
+${policyLine}
+
+For ${details.program}, this covenant letter is not a sale of benefit, vote buying, or an automatic guarantee. It is a signed record that you supported the vision early and that your details have been captured for proper screening. ${details.note}
+
+When we are inaugurated, applications will be reviewed with clear criteria, including merit, residency, need, community impact, documentation, and fairness. Supporters who believed in us, defended these ideals, and helped bring about this change will receive priority screening and preferential treatment, but final approval will still follow transparent rules.
+
+Keep this letter safely. It is your proof that you stood with the Sarki Amada Bills and with the movement to turn good ideas into real policies, empowerment packages, and a better Nigeria.`
+    };
+}
+
 async function generatePromiseLetter(type) {
     const formContainer = document.getElementById(`${type}-form-container`);
     if (!formContainer) return false;
@@ -3309,14 +3583,14 @@ async function generatePromiseLetter(type) {
     const get = (selector) => form.querySelector(selector) ?.value ?.trim() || '';
     const getFile = (selector) => form.querySelector(selector) ?.files[0] || null;
 
-    if (['gladiator', 'security', 'job', 'primary-scholarship', 'secondary-scholarship', 'university-scholarship', 'entrepreneur', 'fuel-subsidy', 'hospital-subsidy', 'transport-subsidy', 'wedding-rebate', 'food-bank', 'rent-subsidy'].includes(type)) {
+    if (['gladiator', 'security', 'job', 'primary-scholarship', 'secondary-scholarship', 'university-scholarship', 'entrepreneur', 'fuel-subsidy', 'hospital-subsidy', 'transport-subsidy', 'wedding-rebate', 'food-bank', 'rent-subsidy', 'digital-hustler'].includes(type)) {
         data.name = get('.name-field');
         data.phone = get('.phone-field');
         data.email = get('.email-field');
         data.dob = get('.dob-field');
         data.ward = get('.ward-field');
         data.education = get('.education-field');
-        data.pvc = get('.pvc-field');
+        data.pvcNin = get('.pvc-field');
         data.cvFile = getFile('.cv-field');
         data.passportFile = getFile('.passport-field');
     }
@@ -3331,11 +3605,13 @@ async function generatePromiseLetter(type) {
         data.address = get('.address-field');
         data.phone = get('.phone-field');
         data.email = get('.email-field');
+        data.pvcNin = get('.pvc-field');
         data.name = data.orgName;
     }
     if (type === 'pilgrimage') {
         data.name = get('.name-field');
         data.phone = get('.phone-field');
+        data.pvcNin = get('.pvc-field');
         data.ward = get('.ward-field');
         data.reason = get('.reason-field');
     }
@@ -3528,6 +3804,13 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
             break;
     }
 
+    const updatedCovenantCopy = getCovenantPolicyCopy(type, data, subject);
+    subject = updatedCovenantCopy.subject;
+    body = updatedCovenantCopy.body;
+    if (!filename) {
+        filename = `${type.replace(/-/g, '_')}_Support_Letter_${(data.name || 'Supporter').replace(/\s/g, '_')}.pdf`;
+    }
+
 
     // --- PDF Design ---
     const page_width = doc.internal.pageSize.getWidth();
@@ -3586,9 +3869,19 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
     doc.setFontSize(9);
     const tableX = passportDataUrl ? 50 : 15;
     let detailsY = currentY + 5;
+    const detailLabels = {
+        pvcNin: 'PVC/NIN',
+        childName: "Child's Name",
+        businessTitle: 'Business Title',
+        businessDesc: 'Business Description',
+        orgName: 'Organization',
+        cvFile: 'CV File',
+        passportFile: 'Passport Photograph'
+    };
     Object.keys(data).forEach(key => {
         if (typeof data[key] === 'string' && data[key]) {
-            doc.text(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${data[key]}`, tableX, detailsY);
+            const label = detailLabels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+            doc.text(`${label}: ${data[key]}`, tableX, detailsY);
             detailsY += 5;
         }
     });
@@ -3810,17 +4103,43 @@ function initializeSpinWheel() {
 
   const prizes = [
     { fillStyle: '#1E3A8A', text: '100 Units' },
+    { fillStyle: '#F8FAFC', text: 'So Close', textFillStyle: '#0F172A', noPrize: true },
     { fillStyle: '#60A5FA', text: '50 Units', textFillStyle: '#0F172A' },
-    { fillStyle: '#F8FAFC', text: 'Try Later', textFillStyle: '#0F172A' },
-    { fillStyle: '#2563EB', text: '25 Units'  },
-    { fillStyle: '#1D4ED8', text: '75 Units'  },
-    { fillStyle: '#FFFFFF', text: 'Blank Space', textFillStyle: '#334155' },
+    { fillStyle: '#FEF3C7', text: 'So Close', textFillStyle: '#0F172A', noPrize: true },
+    { fillStyle: '#2563EB', text: '25 Units' },
+    { fillStyle: '#E0F2FE', text: 'So Close', textFillStyle: '#0F172A', noPrize: true },
+    { fillStyle: '#1D4ED8', text: '75 Units' },
+    { fillStyle: '#FFFFFF', text: 'So Close', textFillStyle: '#334155', noPrize: true },
     { fillStyle: '#0891B2', text: '150 Units' },
-    { fillStyle: '#172554', text: '10 Units'  }
+    { fillStyle: '#F8FAFC', text: 'So Close', textFillStyle: '#0F172A', noPrize: true },
+    { fillStyle: '#172554', text: '10 Units' },
+    { fillStyle: '#FEF3C7', text: 'So Close', textFillStyle: '#0F172A', noPrize: true }
   ];
   let isSpinning = false;
   let audioCtx = null;
   let tickTimer = null;
+  const spinStoragePrefix = 'sarkiElectricitySpin';
+  const todaySpinDate = new Date().toISOString().slice(0, 10);
+
+  function getSpinStorageKey(identifier) {
+    return `${spinStoragePrefix}:${todaySpinDate}:${identifier}`;
+  }
+
+  function hasSpunToday(identifier) {
+    try {
+      return localStorage.getItem(getSpinStorageKey(identifier)) === 'complete';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function markSpunToday(identifier) {
+    try {
+      localStorage.setItem(getSpinStorageKey(identifier), 'complete');
+    } catch (error) {
+      console.warn('Spin record could not be saved:', error);
+    }
+  }
 
   function getAudioContext() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -3879,51 +4198,112 @@ function initializeSpinWheel() {
     splashEl.classList.remove('show', 'try-later');
     void splashEl.offsetWidth;
     if (!wonPrize) splashEl.classList.add('try-later');
-    splashTitle.textContent = wonPrize ? seg.text : seg.text;
-    splashCopy.textContent = wonPrize ? 'Electricity reward captured' : 'No reward on this space';
+    splashTitle.textContent = wonPrize ? seg.text : 'So close';
+    splashCopy.textContent = wonPrize ? 'Electricity reward captured' : 'No reward this time. Try again tomorrow.';
     splashEl.classList.add('show');
+  }
+
+  function isValidSpinIdentifier(value) {
+    return value.length === 11 || value.length === 19;
+  }
+
+  function describeSpinIdentifier(value) {
+    if (value.length === 19) return 'PVC';
+    if (value.length === 11) return 'NIN/phone number';
+    return 'PVC/NIN/phone number';
   }
 
   pvcInput.addEventListener('input', () => {
     const digits = pvcInput.value.replace(/[^0-9]/g, '');
     pvcInput.value = digits.slice(0, 19);
-    spinBtn.disabled = digits.length !== 19;
+    const validIdentifier = isValidSpinIdentifier(digits);
+    const alreadySpun = validIdentifier && hasSpunToday(digits);
+    spinBtn.disabled = !validIdentifier || alreadySpun;
     if (statusEl) {
-      statusEl.textContent = digits.length === 19
-        ? 'PVC captured. You can spin now.'
-        : `${Math.max(0, 19 - digits.length)} digit${19 - digits.length === 1 ? '' : 's'} remaining.`;
+      if (alreadySpun) {
+        statusEl.textContent = `${describeSpinIdentifier(digits)} already used for today's spin. Please try again tomorrow.`;
+      } else {
+        statusEl.textContent = validIdentifier
+          ? `${describeSpinIdentifier(digits)} captured. You can spin now.`
+          : 'Enter an 11-digit phone/NIN or 19-digit PVC to unlock today’s spin.';
+      }
     }
   });
 
-  const wheel = new Winwheel({
-    canvasId: 'wheelCanvas',
-    outerRadius: 174,
-    innerRadius: 46,
-    lineWidth: 3,
-    strokeStyle: '#0F172A',
-    numSegments: 8,
-    textOrientation: 'curved',
-    textAlignment: 'outer',
-    textFontFamily: 'Inter',
-    textFontSize: 17,
-    textFontWeight: 'bold',
-    textFillStyle: '#FFFFFF',
-    segments: prizes
-  });
+  const wheelCanvas = document.getElementById('wheelCanvas');
+  const wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
+  const wheel = typeof Winwheel === 'function'
+    ? new Winwheel({
+        canvasId: 'wheelCanvas',
+        outerRadius: 174,
+        innerRadius: 46,
+        lineWidth: 3,
+        strokeStyle: '#0F172A',
+        numSegments: prizes.length,
+        textOrientation: 'curved',
+        textAlignment: 'outer',
+        textFontFamily: 'Inter',
+        textFontSize: 13,
+        textFontWeight: 'bold',
+        textFillStyle: '#FFFFFF',
+        segments: prizes
+      })
+    : {
+        rotationAngle: 0,
+        stopAnimation: () => {},
+        draw() {
+          if (!wheelCanvas || !wheelCtx) return;
+          const size = wheelCanvas.width;
+          const center = size / 2;
+          const outerRadius = 174;
+          const innerRadius = 46;
+          const segmentRadians = (Math.PI * 2) / prizes.length;
+          wheelCtx.clearRect(0, 0, size, size);
+          wheelCtx.save();
+          wheelCtx.translate(center, center);
+          wheelCtx.rotate((this.rotationAngle - 90) * Math.PI / 180);
+          prizes.forEach((prize, index) => {
+            const start = index * segmentRadians;
+            const end = start + segmentRadians;
+            wheelCtx.beginPath();
+            wheelCtx.moveTo(0, 0);
+            wheelCtx.arc(0, 0, outerRadius, start, end);
+            wheelCtx.closePath();
+            wheelCtx.fillStyle = prize.fillStyle;
+            wheelCtx.fill();
+            wheelCtx.strokeStyle = '#0F172A';
+            wheelCtx.lineWidth = 3;
+            wheelCtx.stroke();
+
+            wheelCtx.save();
+            wheelCtx.rotate(start + segmentRadians / 2);
+            wheelCtx.textAlign = 'right';
+            wheelCtx.textBaseline = 'middle';
+            wheelCtx.fillStyle = prize.textFillStyle || '#FFFFFF';
+            wheelCtx.font = 'bold 13px Inter, Arial, sans-serif';
+            wheelCtx.fillText(prize.text, outerRadius - 18, 0);
+            wheelCtx.restore();
+          });
+          wheelCtx.beginPath();
+          wheelCtx.arc(0, 0, innerRadius, 0, Math.PI * 2);
+          wheelCtx.fillStyle = '#FFFFFF';
+          wheelCtx.fill();
+          wheelCtx.strokeStyle = '#0F172A';
+          wheelCtx.lineWidth = 3;
+          wheelCtx.stroke();
+          wheelCtx.restore();
+        }
+      };
+  wheel.draw();
 
   const segmentAngle = 360 / prizes.length;
   const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
   function selectPrizeIndex() {
     const weightedIndexes = [
-      0, 0,
-      1, 1, 1,
-      2, 2,
-      3, 3, 3,
-      4, 4,
-      5,
-      6,
-      7, 7
+      0, 2, 4, 6, 8, 10,
+      1, 3, 5, 7, 9, 11,
+      1, 3, 5, 7, 9, 11
     ];
     return weightedIndexes[Math.floor(Math.random() * weightedIndexes.length)];
   }
@@ -3958,7 +4338,7 @@ function initializeSpinWheel() {
 
   function announcePrize(seg) {
     isSpinning = false;
-    const wonPrize = !['Try Later', 'Blank Space'].includes(seg.text);
+    const wonPrize = !seg.noPrize;
     playFinishSound(wonPrize);
     if (wheelStage) {
       wheelStage.classList.remove('is-spinning');
@@ -3969,14 +4349,17 @@ function initializeSpinWheel() {
     if (resultTitle && resultCopy) {
       resultTitle.textContent = wonPrize ? `You won ${seg.text}` : 'So close';
       resultCopy.textContent = wonPrize
-        ? 'Your PVC has been recorded for validation. The campaign team will contact confirmed winners.'
-        : `${seg.text} landed. Your PVC is still logged for today’s draw record.`;
+        ? `Your ${describeSpinIdentifier(pvcInput.value)} has been recorded for validation. The campaign team will contact confirmed winners.`
+        : `So close. Your ${describeSpinIdentifier(pvcInput.value)} is still logged for today’s draw record.`;
     }
     if (resultEl) resultEl.classList.remove('hidden');
     if (statusEl) statusEl.textContent = 'Today’s spin is complete.';
+    markSpunToday(pvcInput.value);
 
     if (wonPrize) {
-      confetti({ particleCount: 140, spread: 75, origin: { y: 0.62 } });
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 140, spread: 75, origin: { y: 0.62 } });
+      }
     }
     spinBtn.disabled  = true;
     pvcInput.disabled = true;
