@@ -23,7 +23,7 @@
             background-color: #f8fafc;
         }
         .hero-bg {
-            background-image: url('assets/hero/sarki-suit-hero.jpg');
+            background-image: url('First Hero .png');
             background-size: cover;
             background-position: right center;
             position: relative;
@@ -718,10 +718,12 @@
                 align-items: flex-start;
             }
             .hero-bg.hero-clean-active {
-                min-height: clamp(15rem, 58vw, 23rem);
+                min-height: clamp(13rem, 56.25vw, 27rem);
                 align-items: center;
             }
             .hero-bg.hero-clean-active .hero-bg-slide.active {
+                background-size: contain;
+                background-repeat: no-repeat;
                 background-position: center;
             }
             .hero-content {
@@ -806,18 +808,29 @@
                 align-items: center;
             }
             .hero-bg.hero-clean-active {
-                min-height: clamp(20rem, 72vw, 25rem);
+                min-height: clamp(11.5rem, 56.25vw, 22rem);
+            }
+            .hero-bg.hero-clean-active .container {
+                display: none;
             }
             .hero-bg.hero-clean-active .hero-bg-slide.active,
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="NO-EFCC.png"],
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="no-harassment-youths-redesign.png"] {
-                background-size: cover;
+                background-size: contain;
+                background-repeat: no-repeat;
                 background-position: center;
+                background-color: #0f245c;
             }
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="Hero Image.png"],
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="Hero Picture subs.png"],
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="King of Subsidy.png"] {
-                background-position: center top;
+                background-position: center;
+            }
+            .hero-bg.hero-clean-active:has(.hero-bg-slide.active[style*="First Hero"]) {
+                min-height: clamp(10rem, 46vw, 20rem);
+            }
+            .hero-bg.hero-clean-active:has(.hero-bg-slide.active[style*="Six Hero"]) {
+                min-height: clamp(11.5rem, 55.7vw, 22rem);
             }
             .hero-bg .container {
                 padding-top: 2rem !important;
@@ -991,7 +1004,7 @@
                 min-height: 26rem;
             }
             .hero-bg.hero-clean-active {
-                min-height: 20rem;
+                min-height: max(11.5rem, 56.25vw);
             }
             .hero-subsidy-card {
                 width: min(12rem, 68vw);
@@ -1092,7 +1105,7 @@
                     </div>
                     <!-- Social Proof Block -->
                     <div class="text-center mb-8">
-                      <h3 class="text-2xl font-bold text-blue-800">🔥 2,263 People Already applied.</h3>
+                      <h3 class="text-2xl font-bold text-blue-800">🔥 <span id="networking-applicants-stat">2,263</span> People Already applied.</h3>
                       <p class="text-gray-600 mt-1">Across Abuja, we’ll help you connect with influential leaders — from celebrities to representatives.</p>
                     </div>
                     <!-- Networking Tab Panels -->
@@ -1228,12 +1241,12 @@
     <main>
         <div id="home-page" class="page active">
             <section class="hero-bg text-white">
-                <div class="hero-bg-slide active" style="background-image: url('assets/hero/sarki-suit-hero.jpg');"></div>
+                <div class="hero-bg-slide active" data-hide-content="true" style="background-image: url('First Hero .png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('Hero Image.png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('Hero Picture subs.png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('King of Subsidy.png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('NO-EFCC.png');"></div>
-                <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('assets/hero/no-harassment-youths-redesign.png');"></div>
+                <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('Six Hero.png');"></div>
                 <div class="container mx-auto px-4 sm:px-6 py-24 md:py-32 relative z-10">
                     <div class="hero-content">
                     <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">Everyone Must Benefit</h2>
@@ -1246,7 +1259,7 @@
 <section id="stats" class="py-16 bg-blue-900 text-white">
                 <div class="container mx-auto px-4 sm:px-6 text-center">
                     <h3 class="text-3xl md:text-4xl font-bold mb-2">A Movement They Can't Stop</h3>
-                    <p class="text-blue-200 mb-10 max-w-2xl mx-auto">Over 20,000 supporters signed up for future change.</p>
+                    <p class="text-blue-200 mb-10 max-w-2xl mx-auto">Over 21,000 supporters signed up for future change.</p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                         <div class="p-4 md:p-6">
                             <i class="fas fa-users fa-3x mb-4 text-blue-300"></i>
@@ -1519,7 +1532,7 @@
                 <div class="container mx-auto px-4 sm:px-6">
                     <i class="fas fa-file-signature section-icon mx-auto block text-center"></i>
                     <h3 class="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-2">Our Covenant with the Abuja Municipal/Bwari</h3>
-                     <h4 class="text-xl text-center text-gray-700 font-semibold mb-6">Over 83,000 supporters signed up for future change</h4>
+                     <h4 class="text-xl text-center text-gray-700 font-semibold mb-6">Over 21,000 supporters signed up for future change</h4>
                     <p class="text-center text-gray-600 mb-6 max-w-3xl mx-auto">This is a people-first agenda. Some of these commitments are policies we will fight to implement in the House of Representative, while others are direct community projects and empowerment packages we are building for Abuja Municipal/Bwari. Register your interest and keep your signed promise letter as proof that you stood with the plan from the beginning.</p>
                    
                      <div class="my-12 md:my-16 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -1652,38 +1665,30 @@
                <section id="events" class="py-16 md:py-20 bg-white">
                    <div class="container mx-auto px-4 sm:px-6 text-center">
                         <i class="fas fa-award section-icon"></i>
-                       <h3 class="text-3xl md:text-4xl font-bold text-blue-900 mb-2">Campaign Trail & Youth Ambassador Challenge</h3>
-                       <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">Meet us on the campaign trail and become a recognized leader in our movement. This is more than a campaign; it's an opportunity.</p>
-                       <div class="lg:flex lg:gap-8">
-                           <div class="lg:w-1/2 bg-gray-50 p-6 rounded-2xl shadow-lg mb-8 lg:mb-0">
-                               <h4 class="text-2xl font-bold text-gray-800 mb-6 text-left">Upcoming Events</h4>
-                               <div class="space-y-6">
-                                   <div class="text-left">
-                                       <p class="text-sm text-blue-800 font-semibold">JULY 5, 2025</p>
-                                       <h5 class="font-bold text-lg">Town Hall Meeting in Gwagwalada</h5>
-                                       <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Gwagwalada Town Hall</p>
-                                   </div>
-                                   <div class="text-left border-t pt-4">
-                                       <p class="text-sm text-blue-800 font-semibold">JULY 12, 2025</p>
-                                       <h5 class="font-bold text-lg">Market Outreach in Karu</h5>
-                                       <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Karu Market</p>
-                                   </div>
-                                   <div class="text-left border-t pt-4">
-                                       <p class="text-sm text-blue-800 font-semibold">JULY 19, 2025</p>
-                                       <h5 class="font-bold text-lg">Interactive Session with Kuje Community</h5>
-                                       <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Kuje Town Square</p>
-                                   </div>
-                               </div>
+                       <h3 class="text-3xl md:text-4xl font-bold text-blue-900 mb-2">Events</h3>
+                       <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">Follow our movement activities, public engagements, and party milestones.</p>
+                       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left">
+                           <div class="bg-gray-50 p-6 rounded-2xl shadow-lg">
+                               <p class="text-sm text-blue-800 font-semibold mb-2">UPCOMING EVENTS</p>
+                               <h4 class="text-2xl font-bold text-gray-800 mb-3">No upcoming event</h4>
+                               <p class="text-gray-600">New campaign activities will be announced here once dates are confirmed.</p>
                            </div>
-                           <div class="lg:w-1/2 bg-blue-800 text-white p-8 rounded-2xl shadow-2xl flex flex-col justify-center">
-                               <h4 class="text-2xl font-bold mb-4">Become an Abuja Municipal/Bwari Youth Ambassador!</h4>
-                               <p class="mb-4">Attend any 3 campaign events to earn the official title of "Abuja Municipal/Bwari Youth Ambassador."</p>
-                               <ul class="text-left space-y-2 list-disc list-inside mb-6">
-                                   <li>Get a downloadable Certificate of Recognition.</li>
-                                   <li>Receive an exclusive Ambassador lapel pin.</li>
-                                   <li>Priority for campaign leadership roles.</li>
-                               </ul>
-                               <p class="font-bold">Your commitment will be rewarded. Let's win together!</p>
+                           <div class="bg-blue-950 text-white p-6 rounded-2xl shadow-2xl">
+                               <p class="text-sm text-blue-200 font-semibold mb-2">PAST EVENT</p>
+                               <h4 class="text-2xl font-bold mb-2">NDC National Convention</h4>
+                               <p class="text-blue-100 mb-5"><i class="fas fa-calendar-day mr-2"></i>9th of May 2026</p>
+                               <p class="text-blue-50 mb-6">Highlights from the NDC national convention, where members and supporters gathered for the party's national program and movement-building activities.</p>
+                               <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                   <img src="assets/events/ndc-national-convention-1.png" alt="NDC national convention event photo 1" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-2.png" alt="NDC national convention event photo 2" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-3.png" alt="NDC national convention event photo 3" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-4.png" alt="NDC national convention event photo 4" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-5.png" alt="NDC national convention event photo 5" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-6.png" alt="NDC national convention event photo 6" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-7.png" alt="NDC national convention event photo 7" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-8.png" alt="NDC national convention event photo 8" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                                   <img src="assets/events/ndc-national-convention-9.png" alt="NDC national convention event photo 9" class="w-full h-32 object-cover rounded-lg border border-white/20" loading="lazy">
+                               </div>
                            </div>
                        </div>
                    </div>
@@ -2000,6 +2005,7 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
             initializeCountdown();
             initializeMobileMenu();
             initializeStatsAnimation();
+            initializeNetworkingApplicantAnimation();
             initializeHeroPosterSwap();
             populateTodaysWinners();
             initializeFaq();
@@ -2728,34 +2734,87 @@ programs.push({
             const statsSection = document.getElementById('stats');
             if (!statsSection) return;
             const stats = [
-                { id: 'supporters-stat', target: 19142 },
-                { id: 'unverified-supporters-stat', target: 3456 },
-                { id: 'gladiator-stat', target: 37 },
-                { id: 'religious-orgs-stat', target: 22 }
+                { id: 'supporters-stat', target: 19142, overshoot: 620 },
+                { id: 'unverified-supporters-stat', target: 3456, overshoot: 180 },
+                { id: 'gladiator-stat', target: 37, overshoot: 8 },
+                { id: 'religious-orgs-stat', target: 22, overshoot: 5 }
             ];
-            const animateCounter = (id, target) => {
+            const animateCounter = (id, target, overshoot = Math.max(5, Math.round(target * 0.06))) => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                const duration = 2000, stepTime = 20, totalSteps = duration / stepTime;
-                const increment = target / totalSteps;
-                let current = 0;
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        clearInterval(timer);
-                        el.innerText = target.toLocaleString();
+                const peak = target + overshoot;
+                const duration = 2300;
+                const startTime = performance.now();
+                const easeOut = t => 1 - Math.pow(1 - t, 3);
+                const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                const tick = (now) => {
+                    const progress = Math.min((now - startTime) / duration, 1);
+                    let value;
+                    if (progress < 0.68) {
+                        value = peak * easeOut(progress / 0.68);
                     } else {
-                        el.innerText = Math.ceil(current).toLocaleString();
+                        const settle = easeInOut((progress - 0.68) / 0.32);
+                        value = peak - ((peak - target) * settle);
                     }
-                }, stepTime);
+                    el.innerText = Math.round(value).toLocaleString();
+                    if (progress < 1) {
+                        requestAnimationFrame(tick);
+                    } else {
+                        el.innerText = target.toLocaleString();
+                    }
+                };
+                requestAnimationFrame(tick);
             };
             const observer = new IntersectionObserver((entries, observer) => {
                 if (entries[0].isIntersecting) {
-                    stats.forEach(stat => animateCounter(stat.id, stat.target));
+                    stats.forEach(stat => animateCounter(stat.id, stat.target, stat.overshoot));
                     observer.unobserve(statsSection);
                 }
             }, { threshold: 0.1 });
             observer.observe(statsSection);
+        }
+
+        function initializeNetworkingApplicantAnimation() {
+            const el = document.getElementById('networking-applicants-stat');
+            if (!el) return;
+            const target = 2263;
+            const peak = 2398;
+            const duration = 2600;
+            const easeOut = t => 1 - Math.pow(1 - t, 3);
+            const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            let started = false;
+            const run = () => {
+                if (started) return;
+                started = true;
+                const startTime = performance.now();
+                const tick = (now) => {
+                    const progress = Math.min((now - startTime) / duration, 1);
+                    let value;
+                    if (progress < 0.66) {
+                        value = peak * easeOut(progress / 0.66);
+                    } else {
+                        value = peak - ((peak - target) * easeInOut((progress - 0.66) / 0.34));
+                    }
+                    el.innerText = Math.round(value).toLocaleString();
+                    if (progress < 1) {
+                        requestAnimationFrame(tick);
+                    } else {
+                        el.innerText = target.toLocaleString();
+                    }
+                };
+                requestAnimationFrame(tick);
+            };
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        run();
+                        observer.disconnect();
+                    }
+                }, { threshold: 0.35 });
+                observer.observe(el);
+            } else {
+                run();
+            }
         }
 
         function initializeEntrepreneursHub() {
@@ -3700,12 +3759,12 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
        
         document.addEventListener('DOMContentLoaded', () => {
             const testimonials = [
-                 { name: "Hajiya Amina", role: "Market Women Leader, Garki", quote: "Sarki Amada is not just a politician; he is one of us. He listens and has a real plan for the entire Abuja Municipal/Bwari. He has my full support.", benefit: "Food Bank access will support 50+ families in my group." },
-                 { name: "Chinedu Solomon", role: "Youth Leader & Small Business Owner, Kubwa", quote: "For the first time, we have a candidate for House of Representative who is serious about entrepreneurship. His focus on creating jobs gives young people like me hope for the future.", benefit: "The Dream Hub is a real chance for my tech startup." },
-                 { name: "Elder Bako", role: "Community Leader, Kuje", quote: "We have seen Sarki Amada's commitment to our communities long before this election. He is a man of his word, and we trust him to represent the Abuja Municipal/Bwari.", benefit: "Community Security program will finally bring peace of mind." },
-                 { name: "Grace Audu", role: "Teacher, Bwari", quote: "The promise of a Generational Scholarship Fund is a game-changer for our children. It shows a true commitment to the future of the Abuja Municipal/Bwari.", benefit: "My children can now aim for university without fear of fees." },
-                 { name: "Comrade Musa", role: "Transport Union Chairman, Nyanya", quote: "His transport subsidy plan is practical and will ease the daily struggle of our members. This is the kind of thinking we need in the House of Representative.", benefit: "Estimated to save me ₦25,000 monthly on fuel and transport." },
-                 { name: "Dr. Fatima", role: "Medical Doctor, Gwagwalada", quote: "The hospital bill subsidy will save lives. It's a compassionate policy that addresses a critical need for our most vulnerable citizens.", benefit: "Will allow us to treat more patients who cannot afford care." },
+                 { name: "Hajiya Amina", role: "Market Women Leader", quote: "Sarki Amada is not just a politician; he is one of us. He listens and has a real plan for the entire Abuja Municipal/Bwari. He has my full support.", benefit: "Food Bank access will support 50+ families in my group." },
+                 { name: "Chinedu Solomon", role: "Youth Leader & Small Business Owner", quote: "For the first time, we have a candidate for House of Representative who is serious about entrepreneurship. His focus on creating jobs gives young people like me hope for the future.", benefit: "The Dream Hub is a real chance for my tech startup." },
+                 { name: "Elder Bako", role: "Community Leader", quote: "We have seen Sarki Amada's commitment to our communities long before this election. He is a man of his word, and we trust him to represent the Abuja Municipal/Bwari.", benefit: "Community Security program will finally bring peace of mind." },
+                 { name: "Grace Audu", role: "Teacher", quote: "The promise of a Generational Scholarship Fund is a game-changer for our children. It shows a true commitment to the future of the Abuja Municipal/Bwari.", benefit: "My children can now aim for university without fear of fees." },
+                 { name: "Comrade Musa", role: "Transport Union Chairman", quote: "His transport subsidy plan is practical and will ease the daily struggle of our members. This is the kind of thinking we need in the House of Representative.", benefit: "Estimated to save me ₦25,000 monthly on fuel and transport." },
+                 { name: "Dr. Fatima", role: "Medical Doctor", quote: "The hospital bill subsidy will save lives. It's a compassionate policy that addresses a critical need for our most vulnerable citizens.", benefit: "Will allow us to treat more patients who cannot afford care." },
             ];
             const testimonialsGrid = document.getElementById('testimonials-grid');
             if(testimonialsGrid) {
