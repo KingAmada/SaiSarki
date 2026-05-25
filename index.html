@@ -68,6 +68,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/winwheel@1.0.1/dist/Winwheel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -1559,6 +1560,157 @@
             </section>
         </div>
     <script>
+    const SUPABASE_URL = 'https://rwvngisohnflfofikspy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_V3B4qEnO8hPcHofizy8zoA_TDANaLlx';
+    const supabaseClient = (() => {
+        if (!window.supabase || SUPABASE_URL.includes('YOUR_PROJECT_REF') || SUPABASE_ANON_KEY.includes('YOUR_SUPABASE')) {
+            console.warn('Supabase is not configured. Add your project URL and anon key in index.html.');
+            return null;
+        }
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    })();
+
+    function getVisitorId() {
+        const storageKey = 'sarkiVisitorId';
+        try {
+            let visitorId = localStorage.getItem(storageKey);
+            if (!visitorId) {
+                visitorId = crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                localStorage.setItem(storageKey, visitorId);
+            }
+            return visitorId;
+        } catch (error) {
+            return `session-${Date.now()}`;
+        }
+    }
+
+    function getClientContext() {
+        return {
+            visitor_id: getVisitorId(),
+            page_url: window.location.href,
+            user_agent: navigator.userAgent
+        };
+    }
+
+    async function supabaseSelect(table, queryBuilder) {
+        if (!supabaseClient) return { data: null, error: new Error('Supabase not configured') };
+        try {
+            const query = queryBuilder ? queryBuilder(supabaseClient.from(table)) : supabaseClient.from(table).select('*');
+            return await query;
+        } catch (error) {
+            console.error(`Supabase select failed for ${table}:`, error);
+            return { data: null, error };
+        }
+    }
+
+    async function supabaseInsert(table, payload) {
+        if (!supabaseClient) return { data: null, error: new Error('Supabase not configured') };
+        try {
+            return await supabaseClient.from(table).insert(payload);
+        } catch (error) {
+            console.error(`Supabase insert failed for ${table}:`, error);
+            return { data: null, error };
+        }
+    }
+
+    async function uploadSubmissionFile(file, folder) {
+        if (!supabaseClient || !file) return null;
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${folder}/${Date.now()}-${crypto?.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeName}`;
+        const { error } = await supabaseClient.storage.from('submission-files').upload(path, file, {
+            cacheControl: '3600',
+            upsert: false
+        });
+        if (error) {
+            console.error('Supabase file upload failed:', error);
+            return null;
+        }
+        return { bucket: 'submission-files', path, name: file.name, size: file.size, type: file.type };
+    }
+
+    function formToPayload(form) {
+        const payload = {};
+        Array.from(form.elements).forEach((field) => {
+            if (!field.name || field.type === 'submit' || field.type === 'button') return;
+            if (field.type === 'file') {
+                payload[field.name] = Array.from(field.files || []).map(file => ({ name: file.name, size: file.size, type: file.type }));
+                return;
+            }
+            if (field.type === 'checkbox') {
+                payload[field.name] = field.checked;
+                return;
+            }
+            payload[field.name] = field.value?.trim?.() || field.value || '';
+        });
+        return payload;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function renderStatusMessage(form, message, ok = true) {
+        const existing = form.querySelector('.db-status-message');
+        if (existing) existing.remove();
+        const node = document.createElement('div');
+        node.className = `db-status-message text-center mt-4 font-semibold ${ok ? 'text-blue-800' : 'text-red-600'}`;
+        node.textContent = message;
+        form.appendChild(node);
+    }
+
+    function updateProgramStats(programStats) {
+        if (!Array.isArray(programStats)) return;
+        programStats.forEach((stat) => {
+            const card = document.getElementById(`${stat.program_id}-form-container`);
+            if (!card) return;
+            const counter = card.querySelector('.counter-span');
+            const proof = card.querySelector('.social-proof-details');
+            const total = Number(stat.total_submissions || 0);
+            const verified = Number(stat.verified_count || 0);
+            const rejected = Number(stat.rejected_count || 0);
+            const unverified = Number(stat.unverified_count || 0);
+            if (counter && total > 0) {
+                const label = counter.textContent.replace(/^[\d,]+/, '').trim() || 'Applications';
+                counter.textContent = `${total.toLocaleString()} ${label}`;
+            }
+            if (proof) {
+                proof.innerHTML = `(<span class="text-blue-700">${verified.toLocaleString()} verified</span>, <span class="text-red-500">${rejected.toLocaleString()} rejected</span>, <span class="text-gray-500">${unverified.toLocaleString()} unverified</span>)`;
+            }
+        });
+    }
+
+    async function refreshDatabaseStats() {
+        const [{ data: programStats }, { data: siteStats }] = await Promise.all([
+            supabaseSelect('program_stats', q => q.select('*')),
+            supabaseSelect('site_stats', q => q.select('*').maybeSingle())
+        ]);
+        updateProgramStats(programStats);
+        if (siteStats) {
+            const supporters = document.getElementById('supporters-stat');
+            const unverified = document.getElementById('unverified-supporters-stat');
+            const gladiator = document.getElementById('gladiator-stat');
+            const religious = document.getElementById('religious-orgs-stat');
+            if (supporters) supporters.dataset.dbTarget = Number(siteStats.total_supporters || 0);
+            if (unverified) unverified.dataset.dbTarget = Number(siteStats.unverified_supporters || 0);
+            if (gladiator) gladiator.dataset.dbTarget = Number(siteStats.gladiator_count || 0);
+            if (religious) religious.dataset.dbTarget = Number(siteStats.religious_org_count || 0);
+        }
+    }
+
+    async function recordSocialProof(message, proofType = 'submission', area = '') {
+        await supabaseInsert('social_proofs', {
+            message,
+            proof_type: proofType,
+            area,
+            ...getClientContext()
+        });
+    }
+
     // NETWORKING PAGE LOGIC
     document.addEventListener('DOMContentLoaded', function() {
         // --- Networking Tabs ---
@@ -1639,11 +1791,26 @@
                 showBtn.style.display = "none";
                 formArea.innerHTML = networkingFormHTML(tabLabel);
                 const form = formArea.querySelector('.networking-form');
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const btn = form.querySelector('.networking-submit-btn');
+                    btn.disabled = true;
+                    btn.textContent = 'Submitting...';
+                    const { error } = await supabaseInsert('networking_requests', {
+                        category: tabId,
+                        category_label: tabLabel,
+                        payload: formToPayload(form),
+                        ...getClientContext()
+                    });
+                    if (error) {
+                        btn.disabled = false;
+                        btn.textContent = 'Submit';
+                        renderStatusMessage(form, 'Submission failed. Please try again.', false);
+                        return;
+                    }
+                    await recordSocialProof(`${form.elements.name.value} just requested a ${tabLabel} connection`, 'networking');
                     btn.style.display = 'none';
-                    form.insertAdjacentHTML('beforeend', `<div class="text-center mt-4 text-blue-800 font-semibold">We’re verifying your details. You’ll hear from us if selected.</div>`);
+                    renderStatusMessage(form, 'We are verifying your details. You will hear from us if selected.');
                 });
             });
         }
@@ -2181,23 +2348,23 @@
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h4 class="font-bold text-xl mb-4 text-red-600 flex items-center"><i class="fas fa-exclamation-circle mr-3"></i>Complaint Form</h4>
                             <p class="text-sm text-gray-600 mb-4">Facing an issue with a public service? Let us know so we can address it.</p>
-                            <form class="space-y-4" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Submitted!'; this.querySelector('button').classList.remove('bg-red-600'); this.querySelector('button').classList.add('bg-blue-600');">
-                                <input type="text" placeholder="Your Name" class="w-full p-2 border rounded-md" required>
-                                <input type="tel" placeholder="Your Phone Number" class="w-full p-2 border rounded-md" oninput="this.value = this.value.replace(/\D/g, '')" pattern="[0-9]{11}" title="Please enter an 11-digit phone number" maxlength="11">
-                                <textarea class="w-full p-2 border rounded-md" rows="4" placeholder="Describe your complaint in detail..." required></textarea>
+                            <form class="space-y-4" data-db-form="voice" data-voice-type="complaint">
+                                <input type="text" name="name" placeholder="Your Name" class="w-full p-2 border rounded-md" required>
+                                <input type="tel" name="phone" placeholder="Your Phone Number" class="w-full p-2 border rounded-md" oninput="this.value = this.value.replace(/\D/g, '')" pattern="[0-9]{11}" title="Please enter an 11-digit phone number" maxlength="11">
+                                <textarea name="message" class="w-full p-2 border rounded-md" rows="4" placeholder="Describe your complaint in detail..." required></textarea>
                                 <button type="submit" class="w-full mt-4 bg-red-600 text-white font-bold py-2 rounded-md cta-button">Submit Complaint</button>
                             </form>
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h4 class="font-bold text-xl mb-4 text-blue-600 flex items-center"><i class="fas fa-lightbulb mr-3"></i>Proposal Form</h4>
                             <p class="text-sm text-gray-600 mb-4">Have a great idea for a community project or a new policy? Share it with us.</p>
-                            <form class="space-y-4" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Submitted!'; this.querySelector('button').classList.remove('bg-blue-600'); this.querySelector('button').classList.add('bg-blue-600');">
-                                <input type="text" placeholder="Your Name" class="w-full p-2 border rounded-md" required>
-                                <input type="email" placeholder="Your Email" class="w-full p-2 border rounded-md" required>
-                                <input type="text" placeholder="Proposal Title" class="w-full p-2 border rounded-md" required>
-                                <textarea class="w-full p-2 border rounded-md" rows="4" placeholder="Outline your proposal..."></textarea>
+                            <form class="space-y-4" data-db-form="voice" data-voice-type="proposal">
+                                <input type="text" name="name" placeholder="Your Name" class="w-full p-2 border rounded-md" required>
+                                <input type="email" name="email" placeholder="Your Email" class="w-full p-2 border rounded-md" required>
+                                <input type="text" name="title" placeholder="Proposal Title" class="w-full p-2 border rounded-md" required>
+                                <textarea name="message" class="w-full p-2 border rounded-md" rows="4" placeholder="Outline your proposal..."></textarea>
                                  <label class="file-input-label"> <i class="fas fa-upload mr-2"></i>Upload Proposal Document
-                                     <input type="file" class="hidden" onchange="this.parentElement.childNodes[2].textContent = this.files[0] ? this.files[0].name : ''">
+                                     <input type="file" name="attachment" class="hidden" onchange="this.parentElement.childNodes[2].textContent = this.files[0] ? this.files[0].name : ''">
                                      <span class="text-gray-500 ml-2"></span>
                                  </label>
                                 <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-2 rounded-md cta-button">Submit Proposal</button>
@@ -2206,11 +2373,11 @@
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h4 class="font-bold text-xl mb-4 text-blue-700 flex items-center"><i class="fas fa-check-circle mr-3"></i>Suggestion Form</h4>
                             <p class="text-sm text-gray-600 mb-4">How can we improve? We welcome your suggestions for better governance.</p>
-                             <form class="space-y-4" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Submitted!'; this.querySelector('button').classList.remove('bg-blue-700'); this.querySelector('button').classList.add('bg-blue-600');">
-                                 <input type="text" placeholder="Your Name (Optional)" class="w-full p-2 border rounded-md">
-                                 <textarea class="w-full p-2 border rounded-md" rows="4" placeholder="What's your suggestion?" required></textarea>
+                             <form class="space-y-4" data-db-form="voice" data-voice-type="suggestion">
+                                 <input type="text" name="name" placeholder="Your Name (Optional)" class="w-full p-2 border rounded-md">
+                                 <textarea name="message" class="w-full p-2 border rounded-md" rows="4" placeholder="What's your suggestion?" required></textarea>
                                   <label class="file-input-label"> <i class="fas fa-upload mr-2"></i>Upload Suggestion File
-                                      <input type="file" class="hidden" onchange="this.parentElement.childNodes[2].textContent = this.files[0] ? this.files[0].name : ''">
+                                      <input type="file" name="attachment" class="hidden" onchange="this.parentElement.childNodes[2].textContent = this.files[0] ? this.files[0].name : ''">
                                       <span class="text-gray-500 ml-2"></span>
                                   </label>
                                  <button type="submit" class="w-full mt-4 bg-blue-700 text-white font-bold py-2 rounded-md cta-button">Submit Suggestion</button>
@@ -2219,10 +2386,10 @@
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h4 class="font-bold text-xl mb-4 text-gray-800 flex items-center"><i class="fas fa-user-secret mr-3"></i>Whistleblower Form</h4>
                             <p class="text-sm text-gray-600 mb-4">Report corruption or misconduct with complete confidentiality. Your identity will be protected.</p>
-                            <form class="space-y-4" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Submitted!'; this.querySelector('button').classList.remove('bg-gray-800'); this.querySelector('button').classList.add('bg-blue-600');">
-                                <textarea class="w-full p-2 border rounded-md" rows="4" placeholder="Describe the issue. Your submission is secure and anonymous." required></textarea>
+                            <form class="space-y-4" data-db-form="voice" data-voice-type="whistleblower">
+                                <textarea name="message" class="w-full p-2 border rounded-md" rows="4" placeholder="Describe the issue. Your submission is secure and anonymous." required></textarea>
                                 <label class="file-input-label"> <i class="fas fa-upload mr-2"></i>Upload Evidence (Optional)
-                                    <input type="file" class="hidden" onchange="this.parentElement.childNodes[2].textContent = this.files[0] ? this.files[0].name : ''">
+                                    <input type="file" name="attachment" class="hidden" onchange="this.parentElement.childNodes[2].textContent = this.files[0] ? this.files[0].name : ''">
                                     <span class="text-gray-500 ml-2"></span>
                                 </label>
                                 <button type="submit" class="w-full mt-4 bg-gray-800 text-white font-bold py-2 rounded-md cta-button">Submit Anonymously</button>
@@ -2241,7 +2408,7 @@
                        <div class="bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto md:flex">
                            <div class="md:w-1/2 md:pr-8">
                                <h4 class="text-xl font-bold text-gray-800 mb-4">Send us a Message</h4>
-                               <form action="#" method="POST">
+                               <form action="#" method="POST" data-db-form="contact">
                                    <div class="mb-4"><label for="contact-name" class="block text-gray-700">Name</label><input type="text" id="contact-name" name="name" class="w-full p-2 border rounded-md mt-1"></div>
                                    <div class="mb-4"><label for="contact-email" class="block text-gray-700">Email</label><input type="email" id="contact-email" name="email" class="w-full p-2 border rounded-md mt-1"></div>
                                     <div class="mb-4"><label for="message" class="block text-gray-700">Message</label><textarea id="message" name="message" rows="4" class="w-full p-2 border rounded-md mt-1"></textarea></div>
@@ -2433,6 +2600,7 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
             document.getElementById('header-logo').src = partyLogoBase64;
            
             initializeFormCards();
+            refreshDatabaseStats();
 
             initializeAllPages();
             initializeEntrepreneursHub(); // Initialize the new hub
@@ -2498,6 +2666,7 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
             initializeAllocationChart();
             initializeAboutPageAnimation();
             initializeSocialProofToasts();
+            initializeDatabaseForms();
             navigateTo('home'); // Start on the home page
         }
 
@@ -2569,75 +2738,30 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
             if (!toast || !messageEl || !timeEl || toast.dataset.initialized === 'true') return;
             toast.dataset.initialized = 'true';
 
-            const names = [
-                'James', 'Ladi', 'Abba', 'Amina', 'Chinedu', 'Fatima', 'Musa', 'Grace',
-                'Ibrahim', 'Zainab', 'Samuel', 'Ngozi', 'Tunde', 'Hauwa', 'David',
-                'Maryam', 'Bala', 'Funke', 'Emeka', 'Sadiq'
-            ];
-            const areas = [
-                'Abuja', 'Lugbe', 'Maitama', 'Garki', 'Wuse', 'Kubwa', 'Bwari',
-                'Gwarinpa', 'Jabi', 'Karu', 'Nyanya', 'Asokoro', 'Gudu',
-                'Lokogoma', 'Utako', 'Kado', 'Durumi', 'Apo', 'Mpape', 'Life Camp'
-            ];
-            const covenantActions = [
-                'has just got a promise letter',
-                'just applied for a subsidy card',
-                'just registered for the food bank',
-                'just joined the Ward Job Creation pool',
-                'just applied for hospital bill subsidy',
-                'just requested a rent subsidy voucher',
-                'just secured a scholarship promise',
-                'just registered for transport subsidy',
-                'just joined the Community Security program',
-                'just submitted an Entrepreneurs Hub idea'
-            ];
-            const networkingForms = [
-                'wants to be connected to Rich Politicians',
-                'just filled the networking form for Celebrities',
-                'wants to be connected to Rich Nigerians',
-                'just requested access to Musicians',
-                'just applied to meet Actors',
-                'wants to connect with Influencers'
-            ];
-            const electricityActions = [
-                'just won 25 free electricity units',
-                'just won 50 free electricity units',
-                'just won 75 free electricity units',
-                'just won 100 free electricity units',
-                'just won 150 free electricity units',
-                'just unlocked today’s free electricity spin'
-            ];
-            const reliefActions = [
-                'just entered today’s free money draw',
-                'was selected for daily economic relief',
-                'just claimed a relief fund slot',
-                'just registered for free money updates',
-                'just joined the daily benefit list'
-            ];
-            const groups = [covenantActions, networkingForms, electricityActions, reliefActions];
-            let lastMessage = '';
-
-            const pick = (items) => items[Math.floor(Math.random() * items.length)];
-            const buildMessage = () => {
-                let message = '';
-                for (let i = 0; i < 6; i++) {
-                    const name = pick(names);
-                    const area = pick(areas);
-                    const action = pick(pick(groups));
-                    message = `${name} from ${area} ${action}`;
-                    if (message !== lastMessage) break;
-                }
-                lastMessage = message;
-                return message;
+            let proofs = [];
+            let index = 0;
+            const loadProofs = async () => {
+                const { data } = await supabaseSelect('social_proofs', q => q
+                    .select('message, proof_type, area, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(30));
+                proofs = Array.isArray(data) ? data : [];
+                index = 0;
             };
 
-            const showToast = () => {
-                messageEl.textContent = buildMessage();
-                timeEl.textContent = 'Just now on the platform';
+            const showToast = async () => {
+                if (!proofs.length || index >= proofs.length) await loadProofs();
+                if (!proofs.length) return;
+                const proof = proofs[index % proofs.length];
+                index += 1;
+                messageEl.textContent = proof.message;
+                const created = proof.created_at ? new Date(proof.created_at) : null;
+                timeEl.textContent = created ? created.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'From the platform';
                 toast.classList.add('show');
                 window.setTimeout(() => toast.classList.remove('show'), 5200);
             };
 
+            loadProofs();
             window.setTimeout(showToast, 1800);
             window.setInterval(showToast, 8600);
         }
@@ -2706,6 +2830,7 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
                 { id: 'religious', icon: 'fa-place-of-worship', color: 'text-purple-600', bgColor: 'bg-purple-600', title: "Faith Community Network", desc: "For Churches & Mosques. Partner with us to strengthen our communities through faith, hope, and action.", counter: "30 Organizations Registered", proof: "(22 verified, 3 rejected, 5 unverified)", btn: "Get Partnership Certificate" },
                 { id: 'pilgrimage', icon: 'fa-kaaba', color: 'text-cyan-600', bgColor: 'bg-cyan-600', title: "Pilgrimage Sponsorship", desc: "Because we are spiritual in nature. Apply for sponsorship for this life-changing spiritual journey.", counter: "281 Applications Received", proof: "(191 verified, 47 rejected, 43 unverified)", btn: "Get Application Receipt" },
             ];
+
 programs.push({
   id: 'digital-hustler',
   icon: 'fa-id-card',
@@ -3216,37 +3341,28 @@ programs.push({
             }, 1000);
         }
        
-        function populateTodaysWinners() {
+        async function populateTodaysWinners() {
             const tickerEl = document.getElementById('relief-ticker');
             if(!tickerEl) return;
-            let totalDisbursed = 105950;
-            const randomHundredInRange = (min, max) => {
-                const minStep = Math.ceil(min / 100);
-                const maxStep = Math.floor(max / 100);
-                return (Math.floor(Math.random() * (maxStep - minStep + 1)) + minStep) * 100;
-            };
-            const weightedDailyReliefAmount = () => {
-                const chance = Math.random();
-                if (chance < 0.6) return randomHundredInRange(3000, 5900);
-                if (chance < 0.9) return randomHundredInRange(6000, 7900);
-                return randomHundredInRange(10100, 11000);
-            };
-            const reliefData = [
-                {name: 'Amina S.', ward: 'Garki'},
-                {name: 'Tunde B.', ward: 'Kubwa'},
-                {name: 'Ngozi O.', ward: 'Karu'},
-                {name: 'Musa A.', ward: 'Lugbe'},
-                {name: 'Fatima L.', ward: 'Bwari'},
-            ];
+            const today = new Date().toISOString().slice(0, 10);
+            const { data: reliefData } = await supabaseSelect('relief_events', q => q
+                .select('recipient_name, ward, amount')
+                .eq('event_date', today)
+                .order('created_at', { ascending: false })
+                .limit(20));
+            if (!Array.isArray(reliefData) || !reliefData.length) {
+                tickerEl.innerHTML = '<div class="text-center"><p>Daily relief records will appear here after they are entered in Supabase.</p></div>';
+                return;
+            }
+            let totalDisbursed = reliefData.reduce((sum, item) => sum + Number(item.amount || 0), 0);
             let currentReliefIndex = 0;
            
             const updateTicker = () => {
                 const item = reliefData[currentReliefIndex];
-                const amount = weightedDailyReliefAmount();
-                totalDisbursed += amount;
+                const amount = Number(item.amount || 0);
                 tickerEl.innerHTML = `
                     <div class="text-center transition-all duration-500">
-                        <p><strong>₦${amount.toLocaleString()}</strong> just sent to ${item.name} in ${item.ward}!</p>
+                        <p><strong>₦${amount.toLocaleString()}</strong> sent to ${item.recipient_name} in ${item.ward}.</p>
                         <p class="text-xs text-blue-800 font-bold">Total disbursed today: ₦${totalDisbursed.toLocaleString()}</p>
                     </div>
                 `;
@@ -3294,7 +3410,11 @@ programs.push({
             };
             const observer = new IntersectionObserver((entries, observer) => {
                 if (entries[0].isIntersecting) {
-                    stats.forEach(stat => animateCounter(stat.id, stat.target, stat.overshoot));
+                    stats.forEach(stat => {
+                        const el = document.getElementById(stat.id);
+                        const dbTarget = Number(el?.dataset.dbTarget || 0);
+                        animateCounter(stat.id, dbTarget || stat.target, stat.overshoot);
+                    });
                     observer.unobserve(statsSection);
                 }
             }, { threshold: 0.1 });
@@ -3344,11 +3464,11 @@ programs.push({
             }
         }
 
-        function initializeEntrepreneursHub() {
+        async function initializeEntrepreneursHub() {
             const container = document.getElementById('business-ideas-grid');
             if (!container) return;
 
-            const ideas = [
+            let ideas = [
                 {
                     title: "Community Agri-Tech Hub",
                     entrepreneur: "Amina Yusuf",
@@ -3494,6 +3614,25 @@ programs.push({
                 }
             ];
 
+            const { data: dbIdeas } = await supabaseSelect('entrepreneur_ideas_with_counts', q => q
+                .select('*')
+                .eq('is_public', true)
+                .order('created_at', { ascending: false }));
+            if (Array.isArray(dbIdeas) && dbIdeas.length) {
+                ideas = dbIdeas.map((idea) => ({
+                    id: idea.id,
+                    title: idea.title,
+                    entrepreneur: idea.entrepreneur_name,
+                    supporters: Number(idea.supporters_count || 0),
+                    description: idea.description,
+                    pledged: Number(idea.pledged_amount || 0),
+                    goal: Number(idea.goal_amount || 1),
+                    votes: Number(idea.vote_count || 0),
+                    comments: Number(idea.comment_count || 0),
+                    imageUrl: idea.image_url
+                }));
+            }
+
             const fallbackImage = (title) => {
                 const escapeSvgText = (value) => value
                     .replace(/&/g, '&amp;')
@@ -3523,6 +3662,17 @@ programs.push({
             container.innerHTML = ''; // Clear existing content
             const voteStorageKey = 'sarkiEntrepreneurIdeaVotes';
             const slugifyIdea = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            const { data: dbComments } = await supabaseSelect('entrepreneur_comments', q => q
+                .select('idea_id, commenter_name, comment_text, created_at')
+                .eq('is_public', true)
+                .order('created_at', { ascending: false })
+                .limit(100));
+            const commentsByIdea = (dbComments || []).reduce((map, comment) => {
+                const key = String(comment.idea_id);
+                if (!map[key]) map[key] = [];
+                map[key].push(comment);
+                return map;
+            }, {});
             const getVotedIdeas = () => {
                 try {
                     return JSON.parse(localStorage.getItem(voteStorageKey)) || {};
@@ -3541,9 +3691,15 @@ programs.push({
             };
 
             ideas.forEach(idea => {
-                const ideaId = slugifyIdea(idea.title);
+                const ideaId = idea.id || slugifyIdea(idea.title);
                 const hasVoted = Boolean(getVotedIdeas()[ideaId]);
                 const percentage = (idea.pledged / idea.goal) * 100;
+                const commentHtml = (commentsByIdea[String(ideaId)] || []).map(comment => `
+                    <div class="text-xs p-2 bg-gray-100 rounded-md border">
+                        <p class="font-bold text-gray-700">${escapeHtml(comment.commenter_name)}:</p>
+                        <p class="text-gray-600">${escapeHtml(comment.comment_text)}</p>
+                    </div>
+                `).join('') || '<p class="text-xs text-gray-500">No comments yet. Be the first to comment.</p>';
                 const card = document.createElement('div');
                 card.className = "business-idea-card bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 overflow-hidden";
                 card.dataset.ideaId = ideaId;
@@ -3587,14 +3743,7 @@ programs.push({
 
                         <div class="comments-section hidden mt-4 border-t pt-4">
                             <div class="comment-list space-y-2 mb-3 max-h-40 overflow-y-auto pr-2">
-                                <div class="text-xs p-2 bg-gray-100 rounded-md border">
-                                    <p class="font-bold text-gray-700">Adamu B.:</p>
-                                    <p class="text-gray-600">This is a fantastic idea for the Gwagwalada area! We need this.</p>
-                                </div>
-                                <div class="text-xs p-2 bg-gray-100 rounded-md border">
-                                    <p class="font-bold text-gray-700">Funke A.:</p>
-                                    <p class="text-gray-600">How can we ensure the funds are used properly?</p>
-                                </div>
+                                ${commentHtml}
                             </div>
                             <input type="text" class="comment-name-field w-full p-2 border rounded-md text-sm mb-2" placeholder="Your name" required>
                             <textarea class="w-full p-2 border rounded-md text-sm" placeholder="Add your constructive comment..."></textarea>
@@ -3616,7 +3765,7 @@ programs.push({
             });
 
             // Add event listeners for the new cards
-            container.addEventListener('click', function(e) {
+            container.addEventListener('click', async function(e) {
                 const voteBtn = e.target.closest('.vote-btn');
                 const commentBtn = e.target.closest('.comment-btn');
                 const postCommentBtn = e.target.closest('.post-comment-btn');
@@ -3626,6 +3775,16 @@ programs.push({
                     const card = voteBtn.closest('.business-idea-card');
                     const ideaId = card?.dataset.ideaId;
                     if (!ideaId || getVotedIdeas()[ideaId]) {
+                        return;
+                    }
+                    voteBtn.disabled = true;
+                    const { error } = await supabaseInsert('entrepreneur_votes', {
+                        idea_id: ideaId,
+                        visitor_id: getVisitorId(),
+                        ...getClientContext()
+                    });
+                    if (error) {
+                        voteBtn.disabled = false;
                         return;
                     }
                     const countEl = voteBtn.querySelector('.vote-count');
@@ -3655,7 +3814,19 @@ programs.push({
                     nameInput.classList.toggle('form-error', !commenterName);
                     textarea.classList.toggle('form-error', !commentText);
                     if (commenterName && commentText) {
+                        postCommentBtn.disabled = true;
+                        const { error } = await supabaseInsert('entrepreneur_comments', {
+                            idea_id: card.dataset.ideaId,
+                            commenter_name: commenterName,
+                            comment_text: commentText,
+                            is_public: true,
+                            ...getClientContext()
+                        });
+                        postCommentBtn.disabled = false;
+                        if (error) return;
                         const commentList = card.querySelector('.comment-list');
+                        const emptyComment = commentList.querySelector('.text-gray-500');
+                        if (emptyComment) emptyComment.remove();
                         const newComment = document.createElement('div');
                         newComment.className = 'text-xs p-2 bg-gray-100 rounded-md border animate-pulse';
                         newComment.innerHTML = `
@@ -3670,8 +3841,9 @@ programs.push({
 
                         // Update comment count
                          const countEl = card.querySelector('.comment-count');
-                         let currentCount = parseInt(countEl.textContent);
+                        let currentCount = parseInt(countEl.textContent);
                          countEl.textContent = currentCount + 1;
+                        await recordSocialProof(`${commenterName} just commented on ${card.querySelector('h4')?.textContent || 'an entrepreneur idea'}`, 'comment');
 
                         setTimeout(() => newComment.classList.remove('animate-pulse'), 500);
                     }
@@ -3811,6 +3983,49 @@ programs.push({
                  if(label && label.classList.contains('cv-label')) label.textContent = 'Upload CV';
                  if(label && label.classList.contains('passport-label')) label.textContent = 'Upload Passport Photograph';
             }
+        }
+
+        function initializeDatabaseForms() {
+            document.querySelectorAll('form[data-db-form]').forEach((form) => {
+                if (form.dataset.initialized === 'true') return;
+                form.dataset.initialized = 'true';
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+                    const button = form.querySelector('button[type="submit"]');
+                    const originalText = button?.textContent || 'Submit';
+                    if (button) {
+                        button.disabled = true;
+                        button.textContent = 'Submitting...';
+                    }
+                    const formType = form.dataset.dbForm;
+                    const table = formType === 'contact' ? 'contact_messages' : 'voice_submissions';
+                    const payload = formType === 'contact'
+                        ? { payload: formToPayload(form), ...getClientContext() }
+                        : { submission_type: form.dataset.voiceType, payload: formToPayload(form), ...getClientContext() };
+                    const { error } = await supabaseInsert(table, payload);
+                    if (error) {
+                        if (button) {
+                            button.disabled = false;
+                            button.textContent = originalText;
+                        }
+                        renderStatusMessage(form, 'Submission failed. Please try again.', false);
+                        return;
+                    }
+                    await recordSocialProof(formType === 'contact' ? 'A new message was sent to the campaign' : `A ${form.dataset.voiceType} was submitted`, formType);
+                    if (button) {
+                        button.textContent = 'Submitted!';
+                        button.classList.remove('bg-red-600', 'bg-gray-800');
+                        button.classList.add('bg-blue-600');
+                    }
+                    renderStatusMessage(form, 'Your submission has been saved.');
+                    form.reset();
+                }, true);
+            });
         }
 
         function initializeMobileMenu() {
@@ -4039,6 +4254,30 @@ async function generatePromiseLetter(type) {
         data.ward = get('.ward-field');
         data.reason = get('.reason-field');
     }
+
+    const uploadedCv = await uploadSubmissionFile(data.cvFile, `covenant/${type}/cv`);
+    const uploadedPassport = await uploadSubmissionFile(data.passportFile, `covenant/${type}/passport`);
+    const dbSubmission = await supabaseInsert('covenant_submissions', {
+        program_id: type,
+        supporter_name: data.name || data.orgName || '',
+        phone: data.phone || '',
+        email: data.email || '',
+        ward: data.ward || '',
+        pvc_nin: data.pvcNin || '',
+        payload: {
+            ...data,
+            cvFile: uploadedCv || (data.cvFile ? { name: data.cvFile.name, size: data.cvFile.size, type: data.cvFile.type } : null),
+            passportFile: uploadedPassport || (data.passportFile ? { name: data.passportFile.name, size: data.passportFile.size, type: data.passportFile.type } : null)
+        },
+        status: 'unverified',
+        ...getClientContext()
+    });
+    if (dbSubmission.error) {
+        renderStatusMessage(form, 'Could not save your submission. Please try again.', false);
+        return false;
+    }
+    await recordSocialProof(`${data.name || data.orgName || 'A supporter'} from ${data.ward || 'Abuja Municipal/Bwari'} just got a promise letter`, 'covenant', data.ward || '');
+    refreshDatabaseStats();
 
     let passportDataUrl = null;
     if (data.passportFile) {
@@ -4474,8 +4713,8 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
             observer.observe(chartSection);
         }
        
-        document.addEventListener('DOMContentLoaded', () => {
-            const testimonials = [
+        document.addEventListener('DOMContentLoaded', async () => {
+            let testimonials = [
                  { name: "Hajiya Amina", role: "Market Women Leader", quote: "Sarki Amada is not just a politician; he is one of us. He listens and has a real plan for the entire Abuja Municipal/Bwari. He has my full support.", benefit: "Food Bank access will support 50+ families in my group." },
                  { name: "Chinedu Solomon", role: "Youth Leader & Small Business Owner", quote: "For the first time, we have a candidate for House of Representative who is serious about entrepreneurship. His focus on creating jobs gives young people like me hope for the future.", benefit: "The Dream Hub is a real chance for my tech startup." },
                  { name: "Elder Bako", role: "Community Leader", quote: "We have seen Sarki Amada's commitment to our communities long before this election. He is a man of his word, and we trust him to represent the Abuja Municipal/Bwari.", benefit: "Community Security program will finally bring peace of mind." },
@@ -4483,6 +4722,12 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
                  { name: "Comrade Musa", role: "Transport Union Chairman", quote: "His transport subsidy plan is practical and will ease the daily struggle of our members. This is the kind of thinking we need in the House of Representative.", benefit: "Estimated to save me ₦25,000 monthly on fuel and transport." },
                  { name: "Dr. Fatima", role: "Medical Doctor", quote: "The hospital bill subsidy will save lives. It's a compassionate policy that addresses a critical need for our most vulnerable citizens.", benefit: "Will allow us to treat more patients who cannot afford care." },
             ];
+            const { data: dbTestimonials } = await supabaseSelect('testimonials', q => q
+                .select('name, role, quote, benefit, avatar_url')
+                .eq('is_public', true)
+                .order('created_at', { ascending: false }));
+            if (Array.isArray(dbTestimonials) && dbTestimonials.length) testimonials = dbTestimonials;
+
             const testimonialsGrid = document.getElementById('testimonials-grid');
             if(testimonialsGrid) {
                 testimonialsGrid.innerHTML = '';
@@ -4493,7 +4738,7 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
                          <p class="text-gray-600 italic mb-4 flex-grow">"${t.quote}"</p>
                          ${t.benefit ? `<p class="font-bold text-blue-800 text-sm bg-blue-50 p-2 rounded-md mb-4 text-center">Benefit: ${t.benefit}</p>` : ''}
                          <div class="flex items-center mt-auto">
-                             <img src="https://placehold.co/50x50/e2e8f0/4a5568?text=${t.name.split(' ').map(n => n[0]).join('')}" class="w-12 h-12 rounded-full mr-4" alt="${t.name}">
+                             <img src="${t.avatar_url || `https://placehold.co/50x50/e2e8f0/4a5568?text=${t.name.split(' ').map(n => n[0]).join('')}`}" class="w-12 h-12 rounded-full mr-4" alt="${t.name}">
                              <div>
                                  <p class="font-bold text-gray-800">${t.name}</p>
                                  <p class="text-sm text-gray-500">${t.role}</p>
@@ -4557,12 +4802,19 @@ function initializeSpinWheel() {
     }
   }
 
-  function markSpunToday(identifier) {
+  async function markSpunToday(identifier, prizeText, wonPrize) {
     try {
       localStorage.setItem(getSpinStorageKey(identifier), 'complete');
     } catch (error) {
       console.warn('Spin record could not be saved:', error);
     }
+    await supabaseInsert('spin_records', {
+      identifier,
+      spin_date: todaySpinDate,
+      prize_text: prizeText,
+      won_prize: wonPrize,
+      ...getClientContext()
+    });
   }
 
   function getAudioContext() {
@@ -4760,7 +5012,7 @@ function initializeSpinWheel() {
     window.requestAnimationFrame(frame);
   }
 
-  function announcePrize(seg) {
+  async function announcePrize(seg) {
     isSpinning = false;
     const wonPrize = !seg.noPrize;
     playFinishSound(wonPrize);
@@ -4778,7 +5030,8 @@ function initializeSpinWheel() {
     }
     if (resultEl) resultEl.classList.remove('hidden');
     if (statusEl) statusEl.textContent = 'Today’s spin is complete.';
-    markSpunToday(pvcInput.value);
+    await markSpunToday(pvcInput.value, seg.text, wonPrize);
+    await recordSocialProof(wonPrize ? `A supporter just won ${seg.text} on the electricity wheel` : 'A supporter completed today\'s electricity spin', 'spin');
 
     if (wonPrize) {
       if (typeof confetti === 'function') {
