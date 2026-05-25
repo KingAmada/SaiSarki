@@ -1698,7 +1698,7 @@
                 if (stat.program_id === 'religious') acc.religious = Number(stat.verified_count || 0);
                 return acc;
             }, { verified: 0, unverified: 0, gladiator: 0, religious: 0 });
-            const movementTotal = totals.verified + totals.unverified + totals.gladiator + totals.religious;
+            const movementTotal = totals.verified + totals.unverified;
             const supporters = document.getElementById('supporters-stat');
             const unverified = document.getElementById('unverified-supporters-stat');
             const gladiator = document.getElementById('gladiator-stat');
