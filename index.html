@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,6 +60,17 @@
             opacity: 0;
             pointer-events: none;
             transform: translateY(12px);
+        }
+        .hero-bg.hero-clean-active .container {
+            display: none;
+        }
+        .hero-bg:has(.hero-bg-slide.active[data-hide-content="true"]) .hero-content {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(12px);
+        }
+        .hero-bg:has(.hero-bg-slide.active[data-hide-content="true"]) .container {
+            display: none;
         }
         .hero-subsidy-card {
             display: block;
@@ -647,7 +659,7 @@
             min-height: clamp(28rem, 64svh, 40rem);
         }
         .hero-bg.hero-clean-active {
-            min-height: clamp(20rem, 56svh, 36rem);
+            min-height: clamp(18rem, 47vw, 42rem);
         }
         .hero-bg:not(.hero-clean-active) .hero-bg-slide.active {
             background-size: cover;
@@ -656,7 +668,7 @@
             background-color: #0f245c;
         }
         .hero-bg.hero-clean-active .hero-bg-slide.active {
-            background-size: cover;
+            background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             background-color: #0f245c;
@@ -666,8 +678,9 @@
             background-size: contain;
         }
         .hero-content h2 {
-            font-size: clamp(2.1rem, 4.9vw, 4rem);
-            line-height: 0.98;
+            max-width: min(34rem, 92vw);
+            font-size: clamp(2.1rem, 4.2vw, 3.55rem);
+            line-height: 1.02;
         }
         .hero-content p {
             font-size: clamp(0.98rem, 1.65vw, 1.16rem);
@@ -838,7 +851,7 @@
             }
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="Hero Image.png"],
             .hero-bg.hero-clean-active .hero-bg-slide.active[style*="Hero Picture subs.png"],
-            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="King of Subsidy.png"] {
+            .hero-bg.hero-clean-active .hero-bg-slide.active[style*="King of Subsidy.jpeg"] {
                 background-position: center;
             }
             .hero-bg.hero-clean-active:has(.hero-bg-slide.active[style*="First Hero"]) {
@@ -1033,6 +1046,361 @@
             }
             .social-proof-text {
                 font-size: 0.72rem;
+            }
+        }
+
+        /* Final fluid layout layer */
+        :root {
+            --page-x: clamp(1rem, 3.2vw, 1.75rem);
+            --section-y: clamp(3rem, 6vw, 5rem);
+            --card-pad: clamp(1rem, 2.4vw, 1.5rem);
+            --grid-gap: clamp(1rem, 2.4vw, 2rem);
+        }
+        .container {
+            max-width: min(1180px, calc(100vw - (var(--page-x) * 2)));
+        }
+        main section {
+            padding-top: var(--section-y) !important;
+            padding-bottom: var(--section-y) !important;
+        }
+        main section h2,
+        main section h3 {
+            font-size: clamp(1.8rem, 3.4vw, 2.55rem);
+            line-height: 1.08;
+        }
+        main section > .container > p,
+        main section .container > p.text-center {
+            font-size: clamp(0.95rem, 1.35vw, 1.05rem);
+            line-height: 1.62;
+        }
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px;
+        }
+        input,
+        select,
+        textarea {
+            min-height: 2.65rem;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .cta-button {
+            transform-origin: center;
+        }
+        .cta-button:hover {
+            transform: translateY(-1px);
+        }
+        .grid {
+            min-width: 0;
+        }
+        #covenant-grid,
+        #business-ideas-grid,
+        #testimonials-grid,
+        #voice .grid,
+        #events .grid,
+        #gallery-page .grid {
+            gap: var(--grid-gap);
+        }
+        .covenant-highlight-card,
+        .testimonial-card,
+        .business-idea-card,
+        #voice .bg-white,
+        #events .bg-gray-50,
+        #events .bg-blue-950 {
+            border-radius: 8px !important;
+        }
+        .business-idea-card > .p-6,
+        .covenant-highlight-card,
+        .testimonial-card,
+        #voice .bg-white,
+        #events .bg-gray-50,
+        #events .bg-blue-950 {
+            padding: var(--card-pad) !important;
+        }
+        .business-idea-card h4,
+        .covenant-highlight-card h4 {
+            line-height: 1.2;
+        }
+        .business-idea-card .donate-btn {
+            white-space: nowrap;
+        }
+        .comments-section textarea {
+            min-height: 5rem;
+        }
+        .animated-gradient-card {
+            border-radius: 12px;
+        }
+        .animated-gradient-card > .inner-card {
+            border-radius: 9px;
+            padding: var(--card-pad);
+        }
+        .animated-gradient-card .text-2xl {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            line-height: 1.2;
+        }
+        .form-step-1,
+        .form-step-2 {
+            min-width: 0;
+        }
+        .form-step-2 form .grid {
+            gap: 0.85rem;
+        }
+        .file-input-label {
+            min-height: 2.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #networking-tabs {
+            gap: 0.5rem;
+        }
+        #networking-tabs .networking-tab {
+            border-radius: 8px;
+            margin: 0 !important;
+        }
+        .networking-form {
+            border-radius: 8px !important;
+            padding: var(--card-pad) !important;
+        }
+        #terms-modal > div,
+        #donation-modal > div,
+        #contact .bg-white {
+            border-radius: 8px !important;
+        }
+        #contact .bg-white {
+            padding: var(--card-pad) !important;
+        }
+        footer {
+            padding-top: clamp(2.75rem, 5vw, 4rem) !important;
+        }
+
+        @media (min-width: 1025px) {
+            #covenant-grid,
+            #business-ideas-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .business-idea-card,
+            .animated-gradient-card {
+                height: 100%;
+            }
+        }
+
+        @media (max-width: 900px) {
+            :root {
+                --section-y: 3.25rem;
+                --grid-gap: 1.25rem;
+            }
+            .container {
+                max-width: calc(100vw - 2rem);
+            }
+            .hero-bg {
+                min-height: clamp(24rem, 62svh, 32rem);
+            }
+            .hero-bg.hero-clean-active {
+                min-height: clamp(13rem, 56vw, 25rem);
+            }
+            .spin-shell {
+                grid-template-columns: 1fr;
+            }
+            .spin-panel {
+                max-width: 42rem;
+                width: 100%;
+                margin-inline: auto;
+            }
+            #fund-allocation .md\:flex {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            :root {
+                --page-x: 0.9rem;
+                --section-y: 2.45rem;
+                --card-pad: 0.95rem;
+                --grid-gap: 0.95rem;
+            }
+            body {
+                font-size: 0.95rem;
+            }
+            main section h2,
+            main section h3 {
+                font-size: clamp(1.65rem, 8vw, 2.15rem);
+                line-height: 1.1;
+                margin-bottom: 0.65rem;
+            }
+            main section > .container > p,
+            main section .container > p.text-center {
+                margin-bottom: 1.5rem !important;
+            }
+            .section-icon {
+                font-size: 2rem;
+                margin-bottom: 0.6rem;
+            }
+            .sticky-nav h1 {
+                max-width: 60vw;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .sticky-nav p {
+                display: none;
+            }
+            #mobile-menu .mobile-link {
+                padding-top: 0.7rem;
+                padding-bottom: 0.7rem;
+                border-top: 1px solid #f3f4f6;
+            }
+            .hero-bg {
+                min-height: clamp(23rem, 65svh, 31rem);
+            }
+            .hero-bg:not(.hero-clean-active)::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(to bottom, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.62));
+            }
+            .hero-bg .container {
+                position: relative;
+                z-index: 2;
+            }
+            .hero-content h2 {
+                font-size: clamp(1.9rem, 10vw, 2.6rem);
+            }
+            .hero-subsidy-card {
+                width: min(12.75rem, 62vw);
+                border-radius: 10px;
+            }
+            #stats .grid {
+                gap: 0.35rem;
+            }
+            #stats .grid > div {
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+            #stats .fa-3x {
+                font-size: 2rem;
+                margin-bottom: 0.65rem;
+            }
+            #stats h4 {
+                font-size: clamp(1.55rem, 8vw, 2.25rem) !important;
+            }
+            #stats p {
+                font-size: 0.84rem !important;
+            }
+            .spin-panel {
+                padding: 0.95rem !important;
+            }
+            .spin-step {
+                padding: 0.62rem;
+            }
+            #spinwheel .grid.grid-cols-1.sm\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.45rem;
+            }
+            #spinwheel .grid.grid-cols-2 {
+                gap: 0.55rem;
+            }
+            .spin-step p,
+            #spinwheel .text-sm {
+                font-size: 0.78rem;
+                line-height: 1.25;
+            }
+            .spin-form-box {
+                padding: 0.75rem;
+            }
+            .prize-chip {
+                padding: 0.38rem 0.55rem;
+                font-size: 0.72rem;
+            }
+            #covenant-grid,
+            #business-ideas-grid,
+            #testimonials-grid,
+            #voice .grid,
+            #events .grid {
+                grid-template-columns: 1fr !important;
+            }
+            #gallery-page .grid {
+                gap: 0.6rem;
+            }
+            .gallery-item {
+                border-radius: 8px;
+            }
+            .business-idea-card img {
+                aspect-ratio: 16 / 8.8;
+            }
+            .business-idea-card .flex.items-center.justify-between {
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .business-idea-card .donate-btn {
+                padding: 0.55rem 0.8rem;
+                font-size: 0.82rem;
+            }
+            .comment-list {
+                max-height: 9rem !important;
+            }
+            #networking-tabs {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            #networking-tabs .networking-tab {
+                font-size: 0.86rem;
+                min-height: 2.6rem;
+            }
+            .show-networking-form-btn {
+                width: 100%;
+            }
+            #events img {
+                height: 5.5rem !important;
+            }
+            #terms-modal,
+            #donation-modal {
+                align-items: flex-end;
+                padding: 0.75rem;
+            }
+            #terms-modal > div,
+            #donation-modal > div {
+                max-height: min(86svh, 42rem);
+                padding: 1rem !important;
+            }
+            footer .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1.25rem;
+            }
+            footer h5 {
+                margin-bottom: 0.6rem !important;
+            }
+            footer p,
+            footer li,
+            footer input,
+            footer button {
+                font-size: 0.82rem;
+            }
+        }
+
+        @media (max-width: 390px) {
+            :root {
+                --page-x: 0.75rem;
+                --section-y: 2.1rem;
+                --card-pad: 0.82rem;
+            }
+            .container {
+                max-width: calc(100vw - 1.5rem);
+            }
+            #spinwheel .grid.grid-cols-1.sm\:grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            #voice .bg-white {
+                width: calc(100% - 0.5rem);
+                margin-inline: auto;
+            }
+            .wheel-stage {
+                width: min(100%, 15.75rem);
+            }
+            footer .grid {
+                grid-template-columns: 1fr;
             }
         }
 @media print {
@@ -1259,7 +1627,7 @@
                 <div class="hero-bg-slide active" data-hide-content="true" style="background-image: url('First Hero .png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('Hero Image.png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('Hero Picture subs.png');"></div>
-                <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('King of Subsidy.png');"></div>
+                <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('King of Subsidy.jpeg');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('NO-EFCC.png');"></div>
                 <div class="hero-bg-slide" data-hide-content="true" style="background-image: url('Six Hero.png');"></div>
                 <div class="container mx-auto px-4 sm:px-6 py-24 md:py-32 relative z-10">
