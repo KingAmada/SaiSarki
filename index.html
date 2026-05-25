@@ -1675,7 +1675,7 @@
             const rejected = Number(stat.rejected_count || 0);
             const unverified = Number(stat.unverified_count || 0);
             if (counter && total > 0) {
-                const label = counter.textContent.replace(/^[\d,]+/, '').trim() || 'Applications';
+                const label = counter.dataset.label || 'Applications';
                 counter.textContent = `${total.toLocaleString()} ${label}`;
             }
             if (proof) {
@@ -1690,15 +1690,27 @@
             supabaseSelect('site_stats', q => q.select('*').maybeSingle())
         ]);
         updateProgramStats(programStats);
-        if (siteStats) {
+        if (Array.isArray(programStats)) {
+            const totals = programStats.reduce((acc, stat) => {
+                acc.verified += Number(stat.verified_count || 0);
+                acc.unverified += Number(stat.unverified_count || 0);
+                if (stat.program_id === 'gladiator') acc.gladiator = Number(stat.verified_count || 0);
+                if (stat.program_id === 'religious') acc.religious = Number(stat.verified_count || 0);
+                return acc;
+            }, { verified: 0, unverified: 0, gladiator: 0, religious: 0 });
+            const movementTotal = totals.verified + totals.unverified + totals.gladiator + totals.religious;
             const supporters = document.getElementById('supporters-stat');
             const unverified = document.getElementById('unverified-supporters-stat');
             const gladiator = document.getElementById('gladiator-stat');
             const religious = document.getElementById('religious-orgs-stat');
-            if (supporters) supporters.dataset.dbTarget = Number(siteStats.total_supporters || 0);
-            if (unverified) unverified.dataset.dbTarget = Number(siteStats.unverified_supporters || 0);
-            if (gladiator) gladiator.dataset.dbTarget = Number(siteStats.gladiator_count || 0);
-            if (religious) religious.dataset.dbTarget = Number(siteStats.religious_org_count || 0);
+            const movementCopy = document.getElementById('movement-total-copy');
+            const movementCopyPlan = document.getElementById('movement-total-copy-plan');
+            if (supporters) supporters.dataset.dbTarget = totals.verified;
+            if (unverified) unverified.dataset.dbTarget = totals.unverified;
+            if (gladiator) gladiator.dataset.dbTarget = totals.gladiator;
+            if (religious) religious.dataset.dbTarget = totals.religious;
+            if (movementCopy) movementCopy.textContent = movementTotal.toLocaleString();
+            if (movementCopyPlan) movementCopyPlan.textContent = movementTotal.toLocaleString();
         }
     }
 
@@ -1865,7 +1877,7 @@
 <section id="stats" class="py-16 bg-blue-900 text-white">
                 <div class="container mx-auto px-4 sm:px-6 text-center">
                     <h3 class="text-3xl md:text-4xl font-bold mb-2">A Movement They Can't Stop</h3>
-                    <p class="text-blue-200 mb-10 max-w-2xl mx-auto">Over 21,000 supporters signed up for future change.</p>
+                    <p class="text-blue-200 mb-10 max-w-2xl mx-auto">Over <span id="movement-total-copy">0</span> supporters signed up for future change.</p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                         <div class="p-4 md:p-6">
                             <i class="fas fa-users fa-3x mb-4 text-blue-300"></i>
@@ -2064,7 +2076,7 @@
                            </div>
                            <div class="md:w-2/3 md:pl-8 md:border-l-4 border-gray-600">
                                <h4 class="font-bold text-lg text-gray-800">Building Businesses, Creating Jobs</h4>
-                               <p class="text-sm text-gray-500 mb-2">Hospitality, Printing Press, Real-Estate</p>
+                               <p class="text-sm text-gray-500 mb-2">Amada Intl. Hotel, Micro Press, Amada Resources, Amada Realty</p>
                                <p class="text-gray-700">Sarki translated his global knowledge into local action. As a serial entrepreneur, he built successful ventures in hospitality, printing, agriculture, and real estate. These businesses didn't just generate profit; they created hundreds of jobs, supported other local businesses, and contributed to the economic fabric of our communities. He knows firsthand what it takes to grow our economy from the ground up.</p>
                            </div>
                         </div>
@@ -2157,7 +2169,7 @@
                 <div class="container mx-auto px-4 sm:px-6">
                     <i class="fas fa-file-signature section-icon mx-auto block text-center"></i>
                     <h3 class="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-2">Our Covenant with the Abuja Municipal/Bwari</h3>
-                     <h4 class="text-xl text-center text-gray-700 font-semibold mb-6">Over 21,000 supporters signed up for future change</h4>
+                     <h4 class="text-xl text-center text-gray-700 font-semibold mb-6">Over <span id="movement-total-copy-plan">0</span> supporters signed up for future change</h4>
                     <p class="text-center text-gray-600 mb-6 max-w-3xl mx-auto">This is a people-first agenda. Some of these commitments are policies we will fight to implement in the House of Representative, while others are direct community projects and empowerment packages we are building for Abuja Municipal/Bwari. Register your interest and keep your signed promise letter as proof that you stood with the plan from the beginning.</p>
                    
                      <div class="my-12 md:my-16 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -2469,8 +2481,8 @@
                 <div>
                     <h5 class="font-bold mb-4">Stay Connected</h5>
                     <p class="text-blue-200 text-sm mb-4">Subscribe to our newsletter for the latest updates from the campaign trail.</p>
-                    <form class="flex">
-                        <input type="email" placeholder="Your Email" class="w-full rounded-l-md p-2 text-gray-800">
+                    <form class="flex" data-db-form="contact" data-contact-type="newsletter">
+                        <input type="email" name="email" placeholder="Your Email" class="w-full rounded-l-md p-2 text-gray-800" required>
                         <button type="submit" class="bg-blue-700 hover:bg-blue-600 text-white font-bold p-2 rounded-r-md">Go</button>
                     </form>
                 </div>
@@ -2595,63 +2607,16 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
         const coatOfArmsBase64 = 'data:image/jpeg;base64,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';
         const sarkiSignatureBase64 = "data:image/jpeg;base64,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";
        
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Set logo on page load
             document.getElementById('header-logo').src = partyLogoBase64;
            
             initializeFormCards();
-            refreshDatabaseStats();
+            await refreshDatabaseStats();
 
             initializeAllPages();
             initializeEntrepreneursHub(); // Initialize the new hub
 
-            // --- Insert Celebrity Carousel on Networking Page ---
-            // Wait for the networking page and social proof block to exist
-            const insertCelebrityCarousel = () => {
-                // Find headline node by text (case-insensitive, trims spaces)
-                const allHeadings = document.querySelectorAll('#networking-page h2, #networking-page h3, #networking-page h1');
-                let headlineNode = null;
-                allHeadings.forEach(h => {
-                    if (h.textContent.replace(/[^\d]/g,'').includes('12345')) {
-                        headlineNode = h;
-                    }
-                });
-                if (!headlineNode) return;
-                // Find the next paragraph under the headline
-                let paraNode = headlineNode.nextElementSibling;
-                while (paraNode && paraNode.tagName !== 'P') {
-                    paraNode = paraNode.nextElementSibling;
-                }
-                // Insert after the paragraph, before the tab panels
-                if (paraNode) {
-                    // Check if carousel already exists
-                    if (paraNode.nextElementSibling && paraNode.nextElementSibling.classList && paraNode.nextElementSibling.classList.contains('overflow-x-auto')) return;
-                    const carouselHTML = `
-<div class="overflow-x-auto whitespace-nowrap py-4">
-  <div class="inline-flex space-x-4 px-4">
-    <img src="https://placehold.co/120x120?text=Davido" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="Davido">
-    <img src="https://placehold.co/120x120?text=Tiwa" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="Tiwa Savage">
-    <img src="https://placehold.co/120x120?text=Burna" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="Burna Boy">
-    <img src="https://placehold.co/120x120?text=AY" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="AY Comedian">
-    <img src="https://placehold.co/120x120?text=Basket" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="Basketmouth">
-    <img src="https://placehold.co/120x120?text=Peter+Obi" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="Peter Obi">
-    <img src="https://placehold.co/120x120?text=Yemi+Alade" class="rounded-full w-28 h-28 object-cover shadow-md hover:scale-105 transition" alt="Yemi Alade">
-  </div>
-</div>
-`;
-                    paraNode.insertAdjacentHTML('afterend', carouselHTML);
-                }
-            };
-            // Try once after DOMContentLoaded, then again when navigating to networking
-            insertCelebrityCarousel();
-            // Also patch navigateTo to insert when switching to networking page
-            const origNavigateTo = window.navigateTo;
-            window.navigateTo = function(pageId) {
-                origNavigateTo.apply(this, arguments);
-                if (pageId === 'networking') {
-                    setTimeout(insertCelebrityCarousel, 150);
-                }
-            };
         });
 
         function initializeAllPages() {
@@ -2743,6 +2708,7 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
             const loadProofs = async () => {
                 const { data } = await supabaseSelect('social_proofs', q => q
                     .select('message, proof_type, area, created_at')
+                    .neq('proof_type', 'system')
                     .order('created_at', { ascending: false })
                     .limit(30));
                 proofs = Array.isArray(data) ? data : [];
@@ -2756,7 +2722,9 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
                 index += 1;
                 messageEl.textContent = proof.message;
                 const created = proof.created_at ? new Date(proof.created_at) : null;
-                timeEl.textContent = created ? created.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'From the platform';
+                timeEl.textContent = created
+                    ? `Platform record: ${created.toLocaleString(undefined, { month: 'short', day: 'numeric' })}`
+                    : 'Platform record';
                 toast.classList.add('show');
                 window.setTimeout(() => toast.classList.remove('show'), 5200);
             };
@@ -2804,18 +2772,18 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
 
         function initializeFormCards() {
             const programs = [
-                { id: 'gladiator', icon: 'fa-crown', color: 'text-gray-700', bgColor: 'bg-gray-800', title: "The Gladiators' Circle", desc: "An exclusive circle for community leaders. Your position grants you the authority to nominate appointees.", counter: "37 Leaders have joined", proof: "(37 verified, 7 rejected, 19 unverified)", btn: "Claim Your Nomination Authority" },
-                { id: 'security', icon: 'fa-shield-alt', color: 'text-blue-600', bgColor: 'bg-blue-600', title: "Community Security Program", desc: "For the vigilant youth ready to protect our communities. Your registration gives you priority access to recruitment.", counter: "2,027 Youths Registered", proof: "(1,587 verified, 154 rejected, 286 unverified)", btn: "Get Your Priority Letter" },
-                { id: 'job', icon: 'fa-briefcase', color: 'text-blue-700', bgColor: 'bg-blue-700', title: "Ward Job Creation", desc: "Tired of waiting? Register now to be in the exclusive job pool for your ward. We are guaranteeing jobs for our people.", counter: "3,373 Registrations", proof: "(2,743 verified, 215 rejected, 415 unverified)", btn: "Get Your Job Promise Letter" },
-                { id: 'fuel-subsidy', icon: 'fa-gas-pump', color: 'text-red-500', bgColor: 'bg-red-500', title: "Abuja Municipal/Bwari Fuel Subsidy Program", desc: "Register to receive your personalized Fuel Subsidy Card, guaranteeing you access to subsidized fuel at ₦200/Litre after our victory.", counter: "4,679 Cards Registered", proof: "(3,319 verified, 837 rejected, 523 unverified)", btn: "Get Your Subsidy Promise" },
-                { id: 'hospital-subsidy', icon: 'fa-hospital-user', color: 'text-blue-500', bgColor: 'bg-blue-500', title: "Hospital Bill Subsidy", desc: "No one should fear getting sick because of the cost. Register for our program to receive subsidies on hospital bills in the Abuja Municipal/Bwari.", counter: "2,933 Applicants", proof: "(1,847 verified, 719 rejected, 367 unverified)", btn: "Apply for Subsidy" },
-                { id: 'transport-subsidy', icon: 'fa-bus', color: 'text-gray-700', bgColor: 'bg-gray-700', title: "Abuja Municipal/Bwari Transport Subsidy", desc: "To ease the daily burden on workers and students, we will provide a transport subsidy. Register now to be included in this vital program.", counter: "3,717 Registered", proof: "(2,189 verified, 1,039 rejected, 489 unverified)", btn: "Get Transport Grant" },
-                { id: 'wedding-rebate', icon: 'fa-ring', color: 'text-pink-500', bgColor: 'bg-pink-500', title: "Wedding Rebate Program", desc: "Starting a new life together is a beautiful journey. We want to support it. Register for a financial rebate for your wedding ceremony.", counter: "648 Couples Applied", proof: "(423 verified, 139 rejected, 86 unverified)", btn: "Apply for Rebate" },
-                { id: 'primary-scholarship', icon: 'fa-child', color: 'text-pink-600', bgColor: 'bg-pink-600', title: "Primary School Scholarship", desc: "Secure a bright start. Register your child for our primary school scholarship fund.", counter: "873 Applications", proof: "(657 verified, 103 rejected, 113 unverified)", btn: "Get Scholarship Letter" },
-                { id: 'secondary-scholarship', icon: 'fa-book-open', color: 'text-teal-500', bgColor: 'bg-teal-600', title: "Secondary School Scholarship", desc: "Invest in their teenage years. Register your ward for our secondary school scholarship.", counter: "793 Applications", proof: "(611 verified, 85 rejected, 97 unverified)", btn: "Get Scholarship Letter" },
-                { id: 'university-scholarship', icon: 'fa-graduation-cap', color: 'text-indigo-500', bgColor: 'bg-indigo-600', title: "University Scholarship", desc: "Empower their future. Register your child for our university scholarship program.", counter: "467 Applications", proof: "(349 verified, 57 rejected, 61 unverified)", btn: "Get Scholarship Letter" },
-                { id: 'entrepreneur', icon: 'fa-rocket', color: 'text-orange-500', bgColor: 'bg-orange-500', title: "Entrepreneurs' Dream Hub", desc: "Register your business idea to enter the selection pool for funding. Let's build job creators together!", counter: "762 Ideas Submitted", proof: "(537 verified, 146 rejected, 79 unverified)", btn: "Get Funding Promise Letter" },
-                { id: 'food-bank', icon: 'fa-utensils', color: 'text-blue-600', bgColor: 'bg-blue-600', title: "Community Food Bank", desc: "No family in the Abuja Municipal/Bwari should go hungry. Register to receive monthly food packages from our community food bank.", counter: "3,499 Families Registered", proof: "(2,519 verified, 519 rejected, 461 unverified)", btn: "Register for Food Support" },
+                { id: 'gladiator', icon: 'fa-crown', color: 'text-gray-700', bgColor: 'bg-gray-800', title: "The Gladiators' Circle", desc: "An exclusive circle for community leaders. Your position grants you the authority to nominate appointees.", counterLabel: "Leaders have joined", btn: "Claim Your Nomination Authority" },
+                { id: 'security', icon: 'fa-shield-alt', color: 'text-blue-600', bgColor: 'bg-blue-600', title: "Community Security Program", desc: "For the vigilant youth ready to protect our communities. Your registration gives you priority access to recruitment.", counterLabel: "Youths Registered", btn: "Get Your Priority Letter" },
+                { id: 'job', icon: 'fa-briefcase', color: 'text-blue-700', bgColor: 'bg-blue-700', title: "Ward Job Creation", desc: "Tired of waiting? Register now to be in the exclusive job pool for your ward. We are guaranteeing jobs for our people.", counterLabel: "Registrations", btn: "Get Your Job Promise Letter" },
+                { id: 'fuel-subsidy', icon: 'fa-gas-pump', color: 'text-red-500', bgColor: 'bg-red-500', title: "Abuja Municipal/Bwari Fuel Subsidy Program", desc: "Register to receive your personalized Fuel Subsidy Card, guaranteeing you access to subsidized fuel at ₦200/Litre after our victory.", counterLabel: "Cards Registered", btn: "Get Your Subsidy Promise" },
+                { id: 'hospital-subsidy', icon: 'fa-hospital-user', color: 'text-blue-500', bgColor: 'bg-blue-500', title: "Hospital Bill Subsidy", desc: "No one should fear getting sick because of the cost. Register for our program to receive subsidies on hospital bills in the Abuja Municipal/Bwari.", counterLabel: "Applicants", btn: "Apply for Subsidy" },
+                { id: 'transport-subsidy', icon: 'fa-bus', color: 'text-gray-700', bgColor: 'bg-gray-700', title: "Abuja Municipal/Bwari Transport Subsidy", desc: "To ease the daily burden on workers and students, we will provide a transport subsidy. Register now to be included in this vital program.", counterLabel: "Registered", btn: "Get Transport Grant" },
+                { id: 'wedding-rebate', icon: 'fa-ring', color: 'text-pink-500', bgColor: 'bg-pink-500', title: "Wedding Rebate Program", desc: "Starting a new life together is a beautiful journey. We want to support it. Register for a financial rebate for your wedding ceremony.", counterLabel: "Couples Applied", btn: "Apply for Rebate" },
+                { id: 'primary-scholarship', icon: 'fa-child', color: 'text-pink-600', bgColor: 'bg-pink-600', title: "Primary School Scholarship", desc: "Secure a bright start. Register your child for our primary school scholarship fund.", counterLabel: "Applications", btn: "Get Scholarship Letter" },
+                { id: 'secondary-scholarship', icon: 'fa-book-open', color: 'text-teal-500', bgColor: 'bg-teal-600', title: "Secondary School Scholarship", desc: "Invest in their teenage years. Register your ward for our secondary school scholarship.", counterLabel: "Applications", btn: "Get Scholarship Letter" },
+                { id: 'university-scholarship', icon: 'fa-graduation-cap', color: 'text-indigo-500', bgColor: 'bg-indigo-600', title: "University Scholarship", desc: "Empower their future. Register your child for our university scholarship program.", counterLabel: "Applications", btn: "Get Scholarship Letter" },
+                { id: 'entrepreneur', icon: 'fa-rocket', color: 'text-orange-500', bgColor: 'bg-orange-500', title: "Entrepreneurs' Dream Hub", desc: "Register your business idea to enter the selection pool for funding. Let's build job creators together!", counterLabel: "Ideas Submitted", btn: "Get Funding Promise Letter" },
+                { id: 'food-bank', icon: 'fa-utensils', color: 'text-blue-600', bgColor: 'bg-blue-600', title: "Community Food Bank", desc: "No family in the Abuja Municipal/Bwari should go hungry. Register to receive monthly food packages from our community food bank.", counterLabel: "Families Registered", btn: "Register for Food Support" },
                 {
   id: 'rent-subsidy',
   icon: 'fa-home',
@@ -2823,12 +2791,11 @@ const LINE_H      = 5;                    // ≈11 pt at 1.2 line-height
   bgColor: 'bg-blue-800',
   title: "Rent Subsidy Program",
   desc: "Register now to be considered for our monthly rent-subsidy voucher, easing the accommodation burden for Abuja Municipal/Bwari residents.",
-  counter: "2,067 Applications",
-  proof: "(1,393 verified, 427 rejected, 247 unverified)",
+  counterLabel: "Applications",
   btn: "Apply for Rent Subsidy"
 },
-                { id: 'religious', icon: 'fa-place-of-worship', color: 'text-purple-600', bgColor: 'bg-purple-600', title: "Faith Community Network", desc: "For Churches & Mosques. Partner with us to strengthen our communities through faith, hope, and action.", counter: "30 Organizations Registered", proof: "(22 verified, 3 rejected, 5 unverified)", btn: "Get Partnership Certificate" },
-                { id: 'pilgrimage', icon: 'fa-kaaba', color: 'text-cyan-600', bgColor: 'bg-cyan-600', title: "Pilgrimage Sponsorship", desc: "Because we are spiritual in nature. Apply for sponsorship for this life-changing spiritual journey.", counter: "281 Applications Received", proof: "(191 verified, 47 rejected, 43 unverified)", btn: "Get Application Receipt" },
+                { id: 'religious', icon: 'fa-place-of-worship', color: 'text-purple-600', bgColor: 'bg-purple-600', title: "Faith Community Network", desc: "For Churches & Mosques. Partner with us to strengthen our communities through faith, hope, and action.", counterLabel: "Organizations Registered", btn: "Get Partnership Certificate" },
+                { id: 'pilgrimage', icon: 'fa-kaaba', color: 'text-cyan-600', bgColor: 'bg-cyan-600', title: "Pilgrimage Sponsorship", desc: "Because we are spiritual in nature. Apply for sponsorship for this life-changing spiritual journey.", counterLabel: "Applications Received", btn: "Get Application Receipt" },
             ];
 
 programs.push({
@@ -2838,8 +2805,7 @@ programs.push({
   bgColor: 'bg-blue-600',
   title: 'Digital Hustler ID',
   desc: 'Get your “Oga, I’m registered” badge & EFCC-proof paper trail.',
-  counter: '992 Slots claimed',
-  proof: '(718 verified, 109 rejected, 165 unverified)',
+  counterLabel: 'Slots claimed',
   btn: 'Get Your Protection Card'
 });
 
@@ -2859,8 +2825,15 @@ programs.push({
                 const step1P = cardClone.querySelector('.form-step-1 p');
                 if (step1P) step1P.textContent = p.desc;
                
-                cardClone.querySelector('.counter-span').textContent = p.counter;
-                cardClone.querySelector('.social-proof-details').innerHTML = p.proof.replace(/(\d+,?\d* verified)/g, '<span class="text-blue-700">$1</span>').replace(/(\d+,?\d* rejected)/g, '<span class="text-red-500">$1</span>').replace(/(\d+,?\d* unverified)/g, '<span class="text-gray-500">$1</span>');
+                const counterSpan = cardClone.querySelector('.counter-span');
+                if (counterSpan) {
+                    counterSpan.dataset.label = p.counterLabel || 'Applications';
+                    counterSpan.textContent = `0 ${counterSpan.dataset.label}`;
+                }
+                const proofDetails = cardClone.querySelector('.social-proof-details');
+                if (proofDetails) {
+                    proofDetails.innerHTML = '(<span class="text-blue-700">0 verified</span>, <span class="text-red-500">0 rejected</span>, <span class="text-gray-500">0 unverified</span>)';
+                }
                
                 const step1Btn = cardClone.querySelector('.step-1-btn');
                 const step2Btn = cardClone.querySelector('.step-2-btn');
@@ -3377,10 +3350,10 @@ programs.push({
             const statsSection = document.getElementById('stats');
             if (!statsSection) return;
             const stats = [
-                { id: 'supporters-stat', target: 19142, overshoot: 620 },
-                { id: 'unverified-supporters-stat', target: 3456, overshoot: 180 },
-                { id: 'gladiator-stat', target: 37, overshoot: 8 },
-                { id: 'religious-orgs-stat', target: 22, overshoot: 5 }
+                { id: 'supporters-stat', target: 0, overshoot: 0 },
+                { id: 'unverified-supporters-stat', target: 0, overshoot: 0 },
+                { id: 'gladiator-stat', target: 0, overshoot: 0 },
+                { id: 'religious-orgs-stat', target: 0, overshoot: 0 }
             ];
             const animateCounter = (id, target, overshoot = Math.max(5, Math.round(target * 0.06))) => {
                 const el = document.getElementById(id);
@@ -3421,11 +3394,17 @@ programs.push({
             observer.observe(statsSection);
         }
 
-        function initializeNetworkingApplicantAnimation() {
+        async function initializeNetworkingApplicantAnimation() {
             const el = document.getElementById('networking-applicants-stat');
             if (!el) return;
-            const target = 2263;
-            const peak = 2398;
+            let target = 0;
+            if (supabaseClient) {
+                const { count } = await supabaseClient
+                    .from('networking_requests')
+                    .select('*', { count: 'exact', head: true });
+                target = Number(count || 0);
+            }
+            const peak = target + Math.max(1, Math.round(target * 0.06));
             const duration = 2600;
             const easeOut = t => 1 - Math.pow(1 - t, 3);
             const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -3468,151 +3447,7 @@ programs.push({
             const container = document.getElementById('business-ideas-grid');
             if (!container) return;
 
-            let ideas = [
-                {
-                    title: "Community Agri-Tech Hub",
-                    entrepreneur: "Amina Yusuf",
-                    supporters: 152,
-                    description: "An integrated hub in Gwagwalada to provide local farmers with access to modern tools, high-yield seedlings, and a direct-to-market platform, cutting out middlemen.",
-                    pledged: 450000,
-                    goal: 2000000,
-                    votes: 289,
-                    comments: 42,
-                    imageUrl: "assets/entrepreneurs/agri-tech-hub Large.jpeg"
-                },
-                {
-                    title: "Abuja Municipal/Bwari Waste-to-Wealth Initiative",
-                    entrepreneur: "Samuel Okon",
-                    supporters: 88,
-                    description: "A recycling plant in Karu that sorts and processes plastic and organic waste into reusable materials and organic fertilizer, creating green jobs for youths.",
-                    pledged: 800000,
-                    goal: 5000000,
-                    votes: 512,
-                    comments: 88,
-                    imageUrl: "assets/entrepreneurs/waste-to-wealth Large.jpeg"
-                },
-                {
-                    title: "Kwali Pottery Digital Marketplace",
-                    entrepreneur: "Grace Bako",
-                    supporters: 210,
-                    description: "An e-commerce platform to showcase and sell the unique pottery from Kwali to a global audience, preserving cultural heritage and empowering local artisans.",
-                    pledged: 150000,
-                    goal: 1500000,
-                    votes: 450,
-                    comments: 65,
-                    imageUrl: "assets/entrepreneurs/kwali-pottery-market Large.jpeg"
-                },
-                {
-                    title: "Abuja Municipal/Bwari Last-Mile Delivery Service",
-                    entrepreneur: "Tunde Adebayo",
-                    supporters: 115,
-                    description: "A logistics service using a fleet of electric bikes to provide fast, eco-friendly package delivery within Abuja's congested city center and satellite towns.",
-                    pledged: 750000,
-                    goal: 3000000,
-                    votes: 355,
-                    comments: 58,
-                    imageUrl: "assets/entrepreneurs/last-mile-delivery Large.jpeg"
-                },
-                {
-                    title: "Local Shea Butter Processing Unit",
-                    entrepreneur: "Hajiya Fatima Bello",
-                    supporters: 95,
-                    description: "A small-scale processing unit in Abaji to produce high-quality, unrefined shea butter for cosmetic and confectionery markets, empowering local women cooperatives.",
-                    pledged: 300000,
-                    goal: 1800000,
-                    votes: 240,
-                    comments: 31,
-                    imageUrl: "assets/entrepreneurs/shea-processing Large.jpeg"
-                },
-                {
-                    title: "Mobile Mechanic & Car Care",
-                    entrepreneur: "Chinedu Eze",
-                    supporters: 72,
-                    description: "A call-out service that brings professional car maintenance, diagnostics, and minor repairs directly to customers' homes and offices, saving them time and hassle.",
-                    pledged: 550000,
-                    goal: 2500000,
-                    votes: 198,
-                    comments: 45,
-                    imageUrl: "assets/entrepreneurs/mobile-mechanic Large.jpeg"
-                },
-                {
-                    title: "Healthy School Lunch Program",
-                    entrepreneur: "Ngozi Okafor",
-                    supporters: 130,
-                    description: "A subscription-based service delivering nutritious, locally-sourced, and hygienically-packaged lunches to primary and secondary schools across the Abuja Municipal/Bwari.",
-                    pledged: 250000,
-                    goal: 2000000,
-                    votes: 410,
-                    comments: 76,
-                    imageUrl: "assets/entrepreneurs/school-lunch Large.jpeg"
-                },
-                {
-                    title: "Solar-Powered Phone Charging Kiosks",
-                    entrepreneur: "Musa Sani",
-                    supporters: 180,
-                    description: "A network of secure, solar-powered kiosks in high-traffic areas like markets and bus stops, providing affordable phone charging and selling data bundles.",
-                    pledged: 600000,
-                    goal: 4000000,
-                    votes: 620,
-                    comments: 102,
-                    imageUrl: "assets/entrepreneurs/solar-charging-kiosks Large.jpeg"
-                },
-                {
-                    title: "Abuja Events & Venue Directory",
-                    entrepreneur: "Funke Alabi",
-                    supporters: 55,
-                    description: "A one-stop online platform for discovering, comparing, and booking event vendors (caterers, decorators, MCs) and venues within the Abuja Municipal/Bwari.",
-                    pledged: 100000,
-                    goal: 1000000,
-                    votes: 180,
-                    comments: 29,
-                    imageUrl: "assets/entrepreneurs/events-directory Large.jpeg"
-                },
-                {
-                    title: "Upcycled Fashion & Accessories",
-                    entrepreneur: "Zainab Ibrahim",
-                    supporters: 48,
-                    description: "A sustainable fashion brand that designs and creates unique clothing and accessories from post-consumer textile waste, promoting a circular economy.",
-                    pledged: 120000,
-                    goal: 900000,
-                    votes: 150,
-                    comments: 22,
-                    imageUrl: "assets/entrepreneurs/upcycled-fashion Large.jpeg"
-                },
-                {
-                    title: "Traditional Snack Production",
-                    entrepreneur: "David Leke",
-                    supporters: 102,
-                    description: "Modern, hygienic, and well-packaged production of traditional Nigerian snacks like Kuli-Kuli, Donkwa, and Chin-Chin for sale in supermarkets and stores.",
-                    pledged: 200000,
-                    goal: 1200000,
-                    votes: 315,
-                    comments: 38,
-                    imageUrl: "assets/entrepreneurs/traditional-snacks Large.jpeg"
-                },
-                {
-                    title: "Home Tutoring & Skills Service",
-                    entrepreneur: "Dr. Emeka Obi",
-                    supporters: 85,
-                    description: "A trusted platform connecting verified and experienced tutors with students for academic subjects, music, coding, and other vocational skills, both online and in-person.",
-                    pledged: 400000,
-                    goal: 1500000,
-                    votes: 290,
-                    comments: 51,
-                    imageUrl: "assets/entrepreneurs/home-tutoring Large.jpeg"
-                },
-                {
-                    title: "Irrigation for Urban Farming",
-                    entrepreneur: "John Audu",
-                    supporters: 65,
-                    description: "Designing and installing affordable, water-efficient drip irrigation systems for backyard gardens and small urban farms, boosting food security within the city.",
-                    pledged: 180000,
-                    goal: 800000,
-                    votes: 210,
-                    comments: 33,
-                    imageUrl: "assets/entrepreneurs/urban-irrigation Large.jpeg"
-                }
-            ];
+            let ideas = [];
 
             const { data: dbIdeas } = await supabaseSelect('entrepreneur_ideas_with_counts', q => q
                 .select('*')
@@ -3631,6 +3466,10 @@ programs.push({
                     comments: Number(idea.comment_count || 0),
                     imageUrl: idea.image_url
                 }));
+            }
+            if (!ideas.length) {
+                container.innerHTML = '<div class="md:col-span-3 text-center rounded-md border border-blue-100 bg-blue-50 p-6 text-blue-900 font-semibold">Entrepreneur ideas will appear here after they are published in the database.</div>';
+                return;
             }
 
             const fallbackImage = (title) => {
@@ -4714,14 +4553,7 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
         }
        
         document.addEventListener('DOMContentLoaded', async () => {
-            let testimonials = [
-                 { name: "Hajiya Amina", role: "Market Women Leader", quote: "Sarki Amada is not just a politician; he is one of us. He listens and has a real plan for the entire Abuja Municipal/Bwari. He has my full support.", benefit: "Food Bank access will support 50+ families in my group." },
-                 { name: "Chinedu Solomon", role: "Youth Leader & Small Business Owner", quote: "For the first time, we have a candidate for House of Representative who is serious about entrepreneurship. His focus on creating jobs gives young people like me hope for the future.", benefit: "The Dream Hub is a real chance for my tech startup." },
-                 { name: "Elder Bako", role: "Community Leader", quote: "We have seen Sarki Amada's commitment to our communities long before this election. He is a man of his word, and we trust him to represent the Abuja Municipal/Bwari.", benefit: "Community Security program will finally bring peace of mind." },
-                 { name: "Grace Audu", role: "Teacher", quote: "The promise of a Generational Scholarship Fund is a game-changer for our children. It shows a true commitment to the future of the Abuja Municipal/Bwari.", benefit: "My children can now aim for university without fear of fees." },
-                 { name: "Comrade Musa", role: "Transport Union Chairman", quote: "His transport subsidy plan is practical and will ease the daily struggle of our members. This is the kind of thinking we need in the House of Representative.", benefit: "Estimated to save me ₦25,000 monthly on fuel and transport." },
-                 { name: "Dr. Fatima", role: "Medical Doctor", quote: "The hospital bill subsidy will save lives. It's a compassionate policy that addresses a critical need for our most vulnerable citizens.", benefit: "Will allow us to treat more patients who cannot afford care." },
-            ];
+            let testimonials = [];
             const { data: dbTestimonials } = await supabaseSelect('testimonials', q => q
                 .select('name, role, quote, benefit, avatar_url')
                 .eq('is_public', true)
@@ -4731,6 +4563,10 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
             const testimonialsGrid = document.getElementById('testimonials-grid');
             if(testimonialsGrid) {
                 testimonialsGrid.innerHTML = '';
+                if (!testimonials.length) {
+                    testimonialsGrid.innerHTML = '<div class="lg:col-span-3 text-center rounded-md border border-blue-100 bg-blue-50 p-6 text-blue-900 font-semibold">Testimonials will appear here after they are published in the database.</div>';
+                    return;
+                }
                 testimonials.forEach(t => {
                     const testimonialCard = document.createElement('div');
                     testimonialCard.className = 'testimonial-card p-6 rounded-2xl shadow-md flex flex-col';
@@ -4738,7 +4574,7 @@ Post-return, every beneficiary must deliver a 500-word reflection or a five-minu
                          <p class="text-gray-600 italic mb-4 flex-grow">"${t.quote}"</p>
                          ${t.benefit ? `<p class="font-bold text-blue-800 text-sm bg-blue-50 p-2 rounded-md mb-4 text-center">Benefit: ${t.benefit}</p>` : ''}
                          <div class="flex items-center mt-auto">
-                             <img src="${t.avatar_url || `https://placehold.co/50x50/e2e8f0/4a5568?text=${t.name.split(' ').map(n => n[0]).join('')}`}" class="w-12 h-12 rounded-full mr-4" alt="${t.name}">
+                             <div class="w-12 h-12 rounded-full mr-4 bg-blue-100 text-blue-900 flex items-center justify-center font-bold" aria-hidden="true">${t.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</div>
                              <div>
                                  <p class="font-bold text-gray-800">${t.name}</p>
                                  <p class="text-sm text-gray-500">${t.role}</p>
